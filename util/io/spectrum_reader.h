@@ -26,13 +26,7 @@ public:
     virtual std::string GetScanInfo(int scan_num){ return ""; }
     virtual double RTFromScanNum(int scan_num){ return 0; }
     virtual bool Exist(int scan_num){ return false; }
-    virtual void Init(){ }
-    
-    std::string Path() { return path_; }
-    void set_path(std::string path) { path_ = path; Init(); }
-
-protected:
-    std::string path_;
+    virtual void Init(std::string path){ } 
 };
 
 
@@ -42,7 +36,7 @@ public:
     SpectrumReader(std::string path,
         std::unique_ptr<SpectrumParser> parser):
             path_(path), parser_(std::move(parser))
-                { parser_->Init(); }
+                { parser_->Init(path); }
     
     int GetFirstScan() { return parser_->GetFirstScan(); }
     int GetLastScan() { return parser_->GetLastScan(); }

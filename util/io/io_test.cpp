@@ -14,8 +14,8 @@ BOOST_AUTO_TEST_CASE( mgf_read_test )
 {
     auto start = std::chrono::high_resolution_clock::now(); 
 
-    MGFParser parser("/home/ruiz/Documents/GlycoCrushSeq/data/ZC_20171218_C22_R1.mgf");
-    parser.Init();
+    MGFParser parser;
+    parser.Init("/home/ruiz/Documents/GlycoCrushSeq/data/ZC_20171218_C22_R1.mgf");
     auto stop = std::chrono::high_resolution_clock::now(); 
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start); 
     std::cout << duration.count() << std::endl; 

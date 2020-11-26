@@ -13,21 +13,17 @@ namespace io {
 class MGFParser : public SpectrumParser
 {   
 public:
-    MGFParser(std::string path)
-        { path_ = path; }
+    MGFParser() = default;
         
-    void Init() override
+    void Init(std::string path) override
     {
         MGFData data;
         int scan_num = -1;
 
-        std::ifstream file(path_);
+        std::ifstream file(path);
         std::string line;
 
         std::smatch result;
-        // std::regex start("BEGIN\\s+IONS");
-        // std::regex end("END\\s+IONS");
-        // std::regex title("TITLE=(.*)");
         std::regex pepmass("PEPMASS=(\\d+\\.?\\d*)");
         std::regex charge("CHARGE=(\\d+)");
         std::regex rt_second("RTINSECONDS=(\\d+\\.?\\d*)");
