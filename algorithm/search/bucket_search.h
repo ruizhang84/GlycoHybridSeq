@@ -46,7 +46,7 @@ public:
             return result;
         
         for(const auto& it : data_[index])
-        {
+        {            
             result.push_back(it->Content());
         }
 
@@ -57,7 +57,7 @@ public:
             for(int i = 0; i < (int) it.size(); i++)
             {
                 if (IsMatch(expect, it[i]->Value()))
-                {
+                {    
                     result.push_back(it[i]->Content());
                 }
                 else
@@ -115,7 +115,7 @@ public:
     {
         if (type_ == model::spectrum::ToleranceBy::Dalton)
             return floor((expect - lower_) / tolerance_);
-        return  ceil(log(expect / lower_) / log1p(tolerance_ / 1000000));
+        return  floor(log(expect / lower_) / log1p(tolerance_ / 1000000));
     }
 
 protected:
