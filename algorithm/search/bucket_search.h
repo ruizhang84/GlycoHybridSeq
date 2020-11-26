@@ -41,7 +41,8 @@ public:
     {
         std::vector<T> result;
         int index = Index(expect);
-        if (index < 0 || index >= (int) data_.size())
+        int size = (int) data_.size();
+        if (index < 0 || index >= size)
             return result;
         
         for(const auto& it : data_[index])
@@ -49,17 +50,41 @@ public:
             result.push_back(it->Content());
         }
 
-        for (int i : Neighbor(index))
+
+        if (index < size - 1)
         {
-            for(const auto& it : data_[i])
+            const auto& it = data_[index+1];
+            for(int i = 0; i < (int) it.size(); i++)
             {
-                const double observe = it->Value();
-                if (IsMatch(expect, observe))
+                if (IsMatch(expect, it[i]->Value()))
                 {
-                    result.push_back(it->Content());
+                    result.push_back(it[i]->Content());
+                }
+                else
+                {
+                    break;
                 }
             }
         }
+
+
+        if (index > 0)
+        {
+            const auto& it = data_[index-1];
+            int bin_size = (int) it.size();
+            for(int i = bin_size-1; i >= 0; i--)
+            {
+                if (IsMatch(expect, it[i]->Value()))
+                {
+                    result.push_back(it[i]->Content());
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+       
         return result;
     }
 
@@ -69,15 +94,19 @@ public:
         if (data_[index].size() > 0)
             return true;
 
-        for(int i : Neighbor(index))
+        int size = (int) data_.size();
+        if (index < size-1 && data_[index+1].size() > 0)
         {
-            for(const auto& it : data_[i])
-            {
-                const double val = it->Value();
-                if (IsMatch(expect, val))
-                    return true;
-            }
+            if (IsMatch(expect, data_[index+1][0]->Value()))
+                return true;
         }
+
+        if (index > 0 && data_[index-1].size() > 0)
+        {
+            int i = (int) data_[index-1].size();
+            if(IsMatch(expect, data_[index-1][i-1]->Value()))
+                return true;
+        } 
 
         return false;
     }
@@ -90,16 +119,6 @@ public:
     }
 
 protected:
-    std::vector<int> Neighbor(int index)
-    {
-        std::vector<int> neighbors;
-        if (index > 0)
-            neighbors.push_back(index-1);
-        if (index < (int) data_.size()-1)
-            neighbors.push_back(index+1);
-        return neighbors;
-    }
-
     void DaltonInit(Points inputs)
     {
         // allocate vector

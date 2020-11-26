@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE( spectrum_search_test )
     auto start = std::chrono::high_resolution_clock::now(); 
     std::vector<model::spectrum::Peak> res = searcher.Search(1089.1);
     auto stop = std::chrono::high_resolution_clock::now(); 
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start); 
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start); 
     std::cout << duration.count() << std::endl; 
 
     for(auto& it : res)
