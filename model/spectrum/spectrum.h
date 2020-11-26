@@ -31,7 +31,9 @@ public:
     }
 
     int Scan() { return scan_num_; }
+    void set_scan(int scan) { scan_num_ = scan; }
     int Retention() { return retention_; }
+    void set_retention(double retention) { retention_ = retention; }
 
     std::vector<Peak>& Peaks() { return peaks_; }
     const std::vector<Peak>& Peaks() const { return peaks_; }

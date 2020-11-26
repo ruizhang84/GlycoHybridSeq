@@ -1,5 +1,5 @@
-#ifndef ENGINE_SPECTRUM_BINPACKING_H
-#define ENGINE_SPECTRUM_BINPACKING_H
+#ifndef ENGINE_SPECTRUM_BINPACKING_H_
+#define ENGINE_SPECTRUM_BINPACKING_H_
 #include <vector>
 #include <algorithm>  
 #include <cmath>
@@ -29,8 +29,9 @@ protected:
         std::vector<double> result;
         const std::vector<model::spectrum::Peak>& peaks = spec.Peaks();
         
+
         // fill the bucket
-        int size = ceil((upper_ - lower_ + 1) / tolerance_);
+        int size = ceil((upper_ - lower_ + 1.0) / tolerance_);
         result.assign(size, 0);
 
         // assign the value
@@ -55,7 +56,7 @@ protected:
 
         // fill the bucket
         double ratio = 2.0 * tolerance_ / 1000000;
-        int size = ceil(log(upper_ / lower_) / log1p(ratio));
+        int size = ceil(log(upper_ * 1.0 / lower_) / log1p(ratio));
         result.assign(size, 0);
 
         // assign the value
