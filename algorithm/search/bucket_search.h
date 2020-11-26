@@ -1,5 +1,5 @@
-#ifndef ALGORITHM_BUCKET_SEARCH_H
-#define ALGORITHM_BUCKET_SEARCH_H
+#ifndef ALGORITHM_BUCKET_SEARCH_H_
+#define ALGORITHM_BUCKET_SEARCH_H_
 
 #include <algorithm> 
 #include <iostream>

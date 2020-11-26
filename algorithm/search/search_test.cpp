@@ -4,6 +4,7 @@
 #include <string>
 #include <chrono>
 #include <iostream>
+#include "bin_search.h"
 #include "bucket_search.h"
 #include "../../util/io/mgf_parser.h"
 #include <unordered_map>
