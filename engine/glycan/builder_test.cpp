@@ -10,10 +10,11 @@ namespace glycan {
 
 BOOST_AUTO_TEST_CASE( glycan_builder_test ) 
 {
-    GlycanBuilder builder(2, 3, 1, 0, 0);
+    GlycanBuilder builder(12, 12, 5, 5, 0);
     builder.Build();
     std::unordered_map<double, std::vector<std::string>> glycans = builder.Glycans();
     std::unordered_map<std::string, std::unique_ptr<Glycan>> glycan_map = builder.GlycanMaps();
+    
     for(const auto& it : glycans)
     {
         std::cout << it.first << ": " << std::endl;
@@ -31,6 +32,7 @@ BOOST_AUTO_TEST_CASE( glycan_builder_test )
         std::cout << std::endl;
     }
 
+    std::cout << glycan_map.size() << std::endl;
     // BOOST_CHECK(glycans.size() > 10);
 }
 
