@@ -123,7 +123,8 @@ protected:
     {
         // allocate vector
         data_.clear();
-        std::sort(inputs.begin(), inputs.end(), Comp);
+        if (!inputs.empty())
+            std::sort(inputs.begin(), inputs.end(), Comp);
 
         // fill the bucket
         int size = ceil((upper_ - lower_ + 1.0) / tolerance_);
@@ -144,7 +145,8 @@ protected:
     {
         // allocate vector
         data_.clear();
-        std::sort(inputs.begin(), inputs.end(), Comp);
+        if (!inputs.empty())
+            std::sort(inputs.begin(), inputs.end(), Comp);
 
         // fill the bucket
         double ratio = tolerance_ / 1000000;

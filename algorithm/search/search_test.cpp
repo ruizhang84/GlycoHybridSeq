@@ -19,23 +19,21 @@ std::shared_ptr<Point<double>> CreatePoint(double value)
     return make_shared<Point<double>>(value, value);
 }
 
-// BOOST_AUTO_TEST_CASE( Algorithm_test ) 
-// {
-//     BucketSearch<double> searcher(model::spectrum::ToleranceBy::Dalton, 20, 1, 1000);
-//     std::vector<std::shared_ptr<Point<double>>> box; 
+BOOST_AUTO_TEST_CASE( Algorithm_test ) 
+{
+    BinSearch searcher(model::spectrum::ToleranceBy::Dalton, 20, 1, 1000);
+    std::vector<double> box; 
 
-//     for(int i=2; i<100; i++)
-//     {
-//         box.push_back(CreatePoint(i));
-//     }
+    for(int i=2; i<100; i++)
+    {
+        box.push_back(i);
+    }
 
-//     searcher.Init(box);
-//     std::cout << "Init Done!" << std::endl;
+    searcher.Init(box);
+    std::cout << "Init Done!" << std::endl;
 
-//     std::vector<double> res = searcher.Search(40);
-//     BOOST_CHECK(searcher.Match(50));
-//     BOOST_CHECK(res.size() == 39);
-// }
+    BOOST_CHECK(searcher.Match(50));
+}
 
 
 BOOST_AUTO_TEST_CASE( spectrum_search_test ) 
@@ -54,14 +52,14 @@ BOOST_AUTO_TEST_CASE( spectrum_search_test )
         mz_points.push_back(std::move(p));
     }
 
-    BucketSearch<model::spectrum::Peak> searcher(model::spectrum::ToleranceBy::PPM, 200, 100, 2000);
-    searcher.Init(mz_points);
-
 
     auto start = std::chrono::high_resolution_clock::now(); 
+    BucketSearch<model::spectrum::Peak> searcher(model::spectrum::ToleranceBy::PPM, 200, 100, 2000);
+    searcher.Init(mz_points);
+   
     std::vector<model::spectrum::Peak> res = searcher.Search(662.0826);
     auto stop = std::chrono::high_resolution_clock::now(); 
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start); 
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start); 
     std::cout << duration.count() << std::endl; 
 
     for(auto& it : res)

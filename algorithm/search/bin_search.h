@@ -15,9 +15,19 @@ class BinSearch
 public:
     BinSearch(model::spectrum::ToleranceBy type, double tol, double lower, double upper):
         type_(type), tolerance_(tol), lower_(lower), upper_(upper){}
+
+    double Tolerance() const { return tolerance_; }
+    model::spectrum::ToleranceBy ToleranceType() const { return type_; }
+    void set_tolerance(double tol) { tolerance_ = tol; }
+    void set_tolerance_by(model::spectrum::ToleranceBy type) { type_ = type; }
     
-    void Init(std::vector<double> inputs) 
+    void Init(std::vector<double> inputs, bool sorted=false) 
     { 
+        if (!sorted)
+        {
+            std::sort(inputs.begin(), inputs.end());
+        }
+
         if (type_ == model::spectrum::ToleranceBy::PPM)
             return PPMInit(inputs);
         return DaltonInit(inputs);
@@ -67,7 +77,6 @@ protected:
     {
         // allocate vector
         data_.clear();
-        std::sort(inputs.begin(), inputs.end());
 
         // fill the bucket
         int size = ceil((upper_ - lower_ + 1.0) / tolerance_);
@@ -87,7 +96,6 @@ protected:
     {
         // allocate vector
         data_.clear();
-        std::sort(inputs.begin(), inputs.end());
 
         // fill the bucket
         double ratio = tolerance_ / 1000000;
