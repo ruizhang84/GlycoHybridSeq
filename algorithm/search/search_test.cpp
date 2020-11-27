@@ -21,7 +21,7 @@ std::shared_ptr<Point<double>> CreatePoint(double value)
 
 BOOST_AUTO_TEST_CASE( Algorithm_test ) 
 {
-    BinSearch searcher(model::spectrum::ToleranceBy::Dalton, 20, 1, 1000);
+    BinSearch searcher(model::spectrum::ToleranceBy::Dalton, 20);
     std::vector<double> box; 
 
     for(int i=2; i<100; i++)
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE( spectrum_search_test )
 
 
     auto start = std::chrono::high_resolution_clock::now(); 
-    BucketSearch<model::spectrum::Peak> searcher(model::spectrum::ToleranceBy::PPM, 200, 100, 2000);
+    BucketSearch<model::spectrum::Peak> searcher(model::spectrum::ToleranceBy::PPM, 200);
     searcher.Init(mz_points);
    
     std::vector<model::spectrum::Peak> res = searcher.Search(662.0826);
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( spectrum_search_test )
             << util::mass::SpectrumMass::ComputePPM(662.0826, it.MZ()) << std::endl;
     }
 
-    BOOST_CHECK(searcher.Match(113.0661));
+    BOOST_CHECK(searcher.Match(113.0671));
 
 }
 

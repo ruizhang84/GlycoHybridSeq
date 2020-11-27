@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
          engine::protein::ProteinPTM::ContainsNGlycanSite);
         peptides.insert(peptides.end(), seq.begin(), seq.end());
     }
-    BOOST_CHECK(std::find(peptides.begin(), peptides.end(), "MVSHHNLTTGATLINE") != peptides.end());
+    BOOST_CHECK(std::find(peptides.begin(), peptides.end(), "VVLHPNYSQVD") != peptides.end());
 
 
     // // build glycans
@@ -69,6 +69,7 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
     auto start = std::chrono::high_resolution_clock::now(); 
 
     auto special_spec = spectrum_reader.GetSpectrum(special_scan);
+    
     auto results = precursor_runner.Match(special_spec.PrecursorMZ(), special_spec.PrecursorCharge());   
    
     auto stop = std::chrono::high_resolution_clock::now(); 

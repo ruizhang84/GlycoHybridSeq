@@ -17,9 +17,9 @@ namespace search{
 class PrecursorMatcher
 {
 public:
-    PrecursorMatcher(model::spectrum::ToleranceBy by, double tol, double lower=100, double upper=2000): 
+    PrecursorMatcher(model::spectrum::ToleranceBy by, double tol): 
         tolerance_(tol), by_(by),
-            searcher_(algorithm::search::BucketSearch<std::string>(by, tol, lower, upper)){}
+            searcher_(algorithm::search::BucketSearch<std::string>(by, tol)){}
 
     void Init(const std::vector<std::string>& peptides, 
         const std::unordered_map<std::string, std::unique_ptr<model::glycan::Glycan>>& glycans)
@@ -30,10 +30,12 @@ public:
                 std::make_shared<algorithm::search::Point<std::string>>(util::mass::PeptideMass::Compute(it), it);
             peptides_.push_back(std::move(seq));
         }
+        
         for(const auto& it : glycans)
         {
             glycans_.push_back(it.second.get());
         }
+        searcher_.Init(peptides_);
     }
 
     double Tolerance() const { return tolerance_; }
@@ -45,10 +47,15 @@ public:
     {
         std::unordered_map<std::string, std::vector<std::string>> results;
         double mass = util::mass::SpectrumMass::Compute(precursor, charge);
+
+        
         for(const auto& glycan : glycans_)
         {
             double target = mass - glycan->Mass();
-            std::vector<std::string> peptides = searcher_.Search(target);
+            if (target <= 0)
+                continue;
+            std::vector<std::string> peptides = searcher_.Search(target, mass);
+
             for(const auto& seq : peptides)
             {
                 if(results.find(seq) == results.end())

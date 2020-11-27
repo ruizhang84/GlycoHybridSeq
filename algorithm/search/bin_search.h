@@ -13,8 +13,8 @@ namespace search {
 class BinSearch
 {
 public:
-    BinSearch(model::spectrum::ToleranceBy type, double tol, double lower, double upper):
-        type_(type), tolerance_(tol), lower_(lower), upper_(upper){}
+    BinSearch(model::spectrum::ToleranceBy type, double tol):
+        type_(type), tolerance_(tol){}
 
     double Tolerance() const { return tolerance_; }
     model::spectrum::ToleranceBy ToleranceType() const { return type_; }
@@ -27,6 +27,9 @@ public:
         {
             std::sort(inputs.begin(), inputs.end());
         }
+
+        lower_ = *min_element(inputs.begin(), inputs.end()) - 1;
+        upper_ = *max_element(inputs.begin(), inputs.end());
 
         if (type_ == model::spectrum::ToleranceBy::PPM)
             return PPMInit(inputs);

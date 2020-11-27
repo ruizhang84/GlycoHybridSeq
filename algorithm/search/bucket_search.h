@@ -6,7 +6,6 @@
 #include <cmath>
 #include "point.h"
 #include "../../model/spectrum/spectrum.h"
-#include "../../util/mass/spectrum.h"
 
 namespace algorithm {
 namespace search {
@@ -18,26 +17,43 @@ typedef std::vector<std::shared_ptr<Point<T>>> Points;
 typedef std::vector<std::vector<std::shared_ptr<Point<T>>>> Bucket;
 
 public:
-    BucketSearch(model::spectrum::ToleranceBy type, double tol, double lower, double upper):
-        type_(type), tolerance_(tol), lower_(lower), upper_(upper){}
+    BucketSearch(model::spectrum::ToleranceBy type, double tol):
+        type_(type), tolerance_(tol){}
     
-    void Init(Points inputs) 
-    { 
+    void Init(Points inputs, bool sorted=false) 
+    {
+        if (!sorted)
+        {
+            std::sort(inputs.begin(), inputs.end());
+        }
+
+        lower_ = INT_MAX;
+        upper_ = 0;
+        for(const auto& it : inputs)
+        {
+            double val = it->Value();
+            lower_ = lower_ < val ? lower_ : val;
+            upper_ = upper_ > val ? upper_ : val;
+        }
+        lower_--;
+
         if (type_ == model::spectrum::ToleranceBy::PPM)
             return PPMInit(inputs);
         return DaltonInit(inputs);
     }
 
-    bool IsMatch(const double expect, const double observe)
+    bool IsMatch(double expect, double observe, double base)
     {
         if (type_ == model::spectrum::ToleranceBy::PPM)
         {
-           return util::mass::SpectrumMass::ComputePPM(expect, observe) < tolerance_;
+           return std::abs(expect - observe) / base * 1000000.0 < tolerance_;
         }
         return std::abs(expect - observe) < tolerance_;
     }
 
-    std::vector<T> Search(double expect)
+    // in case when compute delta of two value,
+    // to handle ppm correctly, (m1-m2)/base
+    std::vector<T> Search(double expect, double base)
     {
         std::vector<T> result;
         int index = Index(expect);
@@ -56,7 +72,7 @@ public:
             const auto& it = data_[index+1];
             for(int i = 0; i < (int) it.size(); i++)
             {
-                if (IsMatch(expect, it[i]->Value()))
+                if (IsMatch(expect, it[i]->Value(), base))
                 {    
                     result.push_back(it[i]->Content());
                 }
@@ -74,7 +90,7 @@ public:
             int bin_size = (int) it.size();
             for(int i = bin_size-1; i >= 0; i--)
             {
-                if (IsMatch(expect, it[i]->Value()))
+                if (IsMatch(expect, it[i]->Value(), base))
                 {
                     result.push_back(it[i]->Content());
                 }
@@ -87,35 +103,49 @@ public:
        
         return result;
     }
+    std::vector<T> Search(double expect)
+    {
+        return Search(expect, expect);
+    }
 
-    bool Match(double expect)
+    // base to handle ppm
+    bool Match(double expect, double base)
     {
         int index = Index(expect);
+
+        if (index < 0 || index >= (int) data_.size())
+            return false;
+
         if (data_[index].size() > 0)
             return true;
 
         int size = (int) data_.size();
         if (index < size-1 && data_[index+1].size() > 0)
         {
-            if (IsMatch(expect, data_[index+1][0]->Value()))
+            if (IsMatch(expect, data_[index+1][0]->Value(), base))
                 return true;
         }
 
         if (index > 0 && data_[index-1].size() > 0)
         {
             int i = (int) data_[index-1].size();
-            if(IsMatch(expect, data_[index-1][i-1]->Value()))
+            if(IsMatch(expect, data_[index-1][i-1]->Value(), base))
                 return true;
         } 
 
         return false;
+    }
+    bool Match(double expect)
+    {
+        return Match(expect, expect);
     }
 
     int Index(double expect)
     {
         if (type_ == model::spectrum::ToleranceBy::Dalton)
             return floor((expect - lower_) / tolerance_);
-        return  floor(log(expect / lower_) / log1p(tolerance_ / 1000000));
+        double ratio = 1.0/(1.0 - tolerance_ / 1000000);
+        return  floor(log(expect * 1.0/ lower_) / log(ratio));
     }
 
 protected:
@@ -123,8 +153,6 @@ protected:
     {
         // allocate vector
         data_.clear();
-        if (!inputs.empty())
-            std::sort(inputs.begin(), inputs.end(), Comp);
 
         // fill the bucket
         int size = ceil((upper_ - lower_ + 1.0) / tolerance_);
@@ -145,12 +173,10 @@ protected:
     {
         // allocate vector
         data_.clear();
-        if (!inputs.empty())
-            std::sort(inputs.begin(), inputs.end(), Comp);
 
         // fill the bucket
-        double ratio = tolerance_ / 1000000;
-        int size = ceil(log(upper_ * 1.0 / lower_) / log1p(ratio));
+        double ratio = 1.0/(1.0 - tolerance_ / 1000000);
+        int size = ceil(log(upper_ / lower_) / log(ratio));
         data_.assign(size, std::vector<std::shared_ptr<Point<T>>>());
 
         // assign the value
@@ -159,7 +185,7 @@ protected:
             double val = it->Value();
             if (val < lower_ || val > upper_)
                 continue;
-            int index = floor(log(val / lower_) / log1p(ratio));
+            int index = floor(log(val / lower_) / log(ratio));    
             data_[index].push_back(it);
         }
     }
