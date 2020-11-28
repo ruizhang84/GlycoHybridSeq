@@ -4,11 +4,11 @@
 #include <string>
 #include <chrono>
 #include <iostream>
-#include "bucket_match.h"
 #include "bucket_search.h"
 #include "binary_search.h"
 #include "search.h"
 #include "../../util/io/mgf_parser.h"
+#include "../../util/mass/spectrum.h"
 #include <unordered_map>
 
 
@@ -20,23 +20,6 @@ std::shared_ptr<Point<double>> CreatePoint(double value)
 {
     return make_shared<Point<double>>(value, value);
 }
-
-BOOST_AUTO_TEST_CASE( Algorithm_test ) 
-{
-    BucketMatch searcher(model::spectrum::ToleranceBy::Dalton, 20);
-    std::vector<double> box; 
-
-    for(int i=2; i<100; i++)
-    {
-        box.push_back(i);
-    }
-
-    searcher.Init(box);
-    std::cout << "Init Done!" << std::endl;
-
-    BOOST_CHECK(searcher.Match(50));
-}
-
 
 BOOST_AUTO_TEST_CASE( spectrum_search_test ) 
 {
@@ -58,6 +41,10 @@ BOOST_AUTO_TEST_CASE( spectrum_search_test )
     auto start = std::chrono::high_resolution_clock::now(); 
     BucketSearch<model::spectrum::Peak> searcher(model::spectrum::ToleranceBy::PPM, 200);
     searcher.Init(mz_points);
+
+    std::shared_ptr<Point<model::spectrum::Peak>> p = 
+            std::make_shared<Point<model::spectrum::Peak>>(662.0826, model::spectrum::Peak(662.0826, 2));
+    searcher.Add(p);
    
     std::vector<model::spectrum::Peak> res = searcher.Search(662.0826);
     auto stop = std::chrono::high_resolution_clock::now(); 

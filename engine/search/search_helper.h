@@ -73,6 +73,17 @@ public:
         }
         return mass_list;
     }
+
+    static double ComputeGlycanMass(const std::vector<model::glycan::Glycan*>& glycans)
+    {
+        double sums = 0.0;
+        int glycan_count = (int) glycans.size();
+        for(const auto& glycan : glycans)
+        {
+            sums += glycan->Mass();
+        }
+        return sums * 1.0 / glycan_count;
+    }
 };
 
 

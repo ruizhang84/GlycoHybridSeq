@@ -64,20 +64,8 @@ public:
         }
         return peak_results;
     }
-    
 
 protected:
-    double ComputeGlycanMass(const std::vector<model::glycan::Glycan*>& glycans)
-    {
-        double sums = 0.0;
-        int glycan_count = (int) glycans.size();
-        for(const auto& glycan : glycans)
-        {
-            sums += glycan->Mass();
-        }
-        return sums * 1.0 / glycan_count;
-    }
-
     void InitSearch(
         const std::unordered_map<std::string, std::vector<model::glycan::Glycan*>>& candidate)
     {
@@ -86,7 +74,7 @@ protected:
         {
             std::string peptide = it.first;
             // get glycan mass
-            double glycan_mean_mass = ComputeGlycanMass(it.second);
+            double glycan_mean_mass = SearchHelper::ComputeGlycanMass(it.second);
 
             // create points
             for (int pos : engine::protein::ProteinPTM::FindNGlycanSite(peptide))

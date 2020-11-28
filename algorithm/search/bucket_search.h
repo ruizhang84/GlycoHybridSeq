@@ -39,6 +39,14 @@ public:
         return DaltonInit(inputs);
     }
 
+    void Add(std::shared_ptr<Point<T>> point)
+    {
+        double expect = point->Value();
+        int index = Index(expect);
+        if (index >= 0 && index < (int) data_.size())
+            data_[index].push_back(point);
+    }
+
     bool IsMatch(double expect, double observe, double base)
     {
         if (type_ == model::spectrum::ToleranceBy::PPM)
@@ -73,10 +81,6 @@ public:
                 {    
                     result.push_back(it[i]->Content());
                 }
-                else
-                {
-                    break;
-                }
             }
         }
 
@@ -90,10 +94,6 @@ public:
                 if (IsMatch(expect, it[i]->Value(), base))
                 {
                     result.push_back(it[i]->Content());
-                }
-                else
-                {
-                    break;
                 }
             }
         }
@@ -117,18 +117,30 @@ public:
             return true;
 
         int size = (int) data_.size();
-        if (index < size-1 && data_[index+1].size() > 0)
+        if (index < size - 1)
         {
-            if (IsMatch(expect, data_[index+1][0]->Value(), base))
-                return true;
+            const auto& it = data_[index+1];
+            for(int i = 0; i < (int) it.size(); i++)
+            {
+                if (IsMatch(expect, it[i]->Value(), base))
+                {    
+                    return true;
+                }
+            }
         }
 
-        if (index > 0 && data_[index-1].size() > 0)
+        if (index > 0)
         {
-            int i = (int) data_[index-1].size();
-            if(IsMatch(expect, data_[index-1][i-1]->Value(), base))
-                return true;
-        } 
+            const auto& it = data_[index-1];
+            int bin_size = (int) it.size();
+            for(int i = bin_size-1; i >= 0; i--)
+            {
+                if (IsMatch(expect, it[i]->Value(), base))
+                {
+                    return true;
+                }
+            }
+        }
 
         return false;
     }
