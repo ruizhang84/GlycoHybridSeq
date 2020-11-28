@@ -83,14 +83,15 @@ public:
                         std::string id = g->ID();
                         if (glycans_map_.find(id) == glycans_map_.end())
                         {
-                            g->set_fragments(node->FragmentSet());
-                            g->AddFragments(mass);
+                            // g->set_fragments(node->FragmentSet());
+                            // g->AddFragments(mass);
                             glycans_map_[id] = std::move(g);
                             queue.push_back(glycans_map_[id].get());                              
-                        }else
-                        {
-                            glycans_map_[id]->AddFragments(mass); 
                         }
+                        // else
+                        // {
+                        //     glycans_map_[id]->AddFragments(mass); 
+                        // }
                     }
                 }
             }

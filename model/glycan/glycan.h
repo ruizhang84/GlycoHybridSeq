@@ -27,12 +27,12 @@ public:
     // Mass
     double Mass() { return mass_; }
     void set_mass(double mass) { mass_ = mass; }
-    std::vector<double> Fragments() { return std::vector<double>(fragments_.begin(), fragments_.end()); }
-    std::set<double> FragmentSet() { return fragments_; } 
-    void set_fragments(std::set<double> fragments) 
-        { fragments_ = fragments; }
-    void AddFragments(double mass)
-        { fragments_.insert(mass); }
+    // std::vector<double> Fragments() { return std::vector<double>(fragments_.begin(), fragments_.end()); }
+    // std::set<double> FragmentSet() { return fragments_; } 
+    // void set_fragments(std::set<double> fragments) 
+    //     { fragments_ = fragments; }
+    // void AddFragments(double mass)
+    //     { fragments_.insert(mass); }
     
     // for print 
     std::string Name() const 
@@ -103,7 +103,7 @@ public:
 
 protected:
     double mass_ = -1;
-    std::set<double> fragments_;
+    // std::set<double> fragments_;
     std::string name_;
     std::vector<int> table_;
     std::map<Monosaccharide, int> composite_; 
