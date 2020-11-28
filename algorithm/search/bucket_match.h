@@ -1,5 +1,5 @@
-#ifndef ALGORITHM_BIN_SEARCH_H
-#define ALGORITHM_BIN_SEARCH_H
+#ifndef ALGORITHM_BUCKET_MATCH_H_
+#define ALGORITHM_BUCKET_MATCH_H_
 
 #include <algorithm> 
 #include <iostream>
@@ -10,10 +10,10 @@
 namespace algorithm {
 namespace search {
 
-class BinSearch
+class BucketMatch
 {
 public:
-    BinSearch(model::spectrum::ToleranceBy type, double tol):
+    BucketMatch(model::spectrum::ToleranceBy type, double tol):
         type_(type), tolerance_(tol){}
 
     double Tolerance() const { return tolerance_; }
@@ -23,11 +23,6 @@ public:
     
     void Init(std::vector<double> inputs, bool sorted=false) 
     { 
-        if (!sorted)
-        {
-            std::sort(inputs.begin(), inputs.end());
-        }
-
         lower_ = *min_element(inputs.begin(), inputs.end()) - 1;
         upper_ = *max_element(inputs.begin(), inputs.end());
 

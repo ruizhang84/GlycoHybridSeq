@@ -1,51 +1,86 @@
-#ifndef ALGORITHM_BINARY_SEARCH_H
-#define ALGORITHM_BINARY_SEARCH_H
+#ifndef ALGORITHM_BINARY_SEARCH_H_
+#define ALGORITHM_BINARY_SEARCH_H_
 
 #include <vector>
-#include <cstdlib> 
-#include <algorithm>
-#include "search.h"
+#include <memory>
+#include <cstdlib>
+#include <algorithm> 
+#include "point.h"
 #include "../../model/spectrum/spectrum.h"
-#include "../../util/mass/spectrum.h"
+#include "search.h"
 
 namespace algorithm {
 namespace search {
 
-// enhanced binary search
-class BinarySearch
+template <class T>
+class BinarySearch : public ISearch<T>
 {
+typedef std::vector<std::shared_ptr<Point<T>>> Points;
 public:
     BinarySearch(model::spectrum::ToleranceBy type, double tol):
-        type_(type), tolerance_(tol) {};
+        type_(type), tolerance_(tol){}
 
-    virtual void Init(std::vector<double> inputs, bool sorted=false) 
-    {
-        if (!inputs.empty() && !sorted)
-            std::sort(inputs.begin(), inputs.end());
-        data_ = inputs;
-    }
+    ~BinarySearch(){}
 
     double Tolerance() const { return tolerance_; }
     model::spectrum::ToleranceBy ToleranceType() const { return type_; }
     void set_tolerance(double tol) { tolerance_ = tol; }
     void set_tolerance_by(model::spectrum::ToleranceBy type) { type_ = type; }
 
-    virtual bool ISMatch(const double p, const double target)
+    void Init(Points inputs, bool sorted=false) override
     {
-        switch (type_)
+        if (!inputs.empty() && !sorted)
         {
-        case model::spectrum::ToleranceBy::PPM:
-            return util::mass::SpectrumMass::ComputePPM(p, target) < tolerance_;
-        case model::spectrum::ToleranceBy::Dalton:
-            return std::abs(p - target) < tolerance_;
-        default:
-            break;
+            std::sort(inputs.begin(), inputs.end(), BasicComp);
         }
-        return false;
+        data_ = inputs;
     }
 
+    bool IsMatch(double expect, double observe, double base)
+    {
+        if (type_ == model::spectrum::ToleranceBy::PPM)
+        {
+           return std::abs(expect - observe) / base * 1000000.0 < tolerance_;
+        }
+        return std::abs(expect - observe) < tolerance_;
+    }
+    
+    std::vector<T> Search(double target, double base) override
+    {
+        std::vector<T> result;
+        if (data_.empty()) 
+            return result;
 
-    virtual bool Match(const double target)
+        int start = 0, end = data_.size()-1;
+        while (start <= end)
+        {
+            int mid = (end - start) / 2 + start;
+            if (IsMatch(target, data_[mid]->Value(), base))
+            {
+                for(int left = mid; left >= 0 && IsMatch(target, data_[left]->Value(), base); left--)
+                {
+                    result.push_back(data_[left]->Content());
+                }
+
+                for (int right = mid+1; right < (int) data_.size() && IsMatch(target, data_[right]->Value(), base); right++)
+                {
+                    result.push_back(data_[right]->Content());
+                }
+                break;
+            }
+            else if (data_[mid]->Value() < target)
+                start = mid + 1;
+            else
+                end = mid - 1;
+        }
+        return result;
+    }
+    std::vector<T> Search(double target) override
+    {
+        return Search(target, target);
+    }
+
+    bool Match(double target, double base) override
     {
         if (data_.empty()) 
             return false;
@@ -54,9 +89,9 @@ public:
         while (start <= end)
         {
             int mid = (end - start) / 2 + start;
-            if (ISMatch(data_[mid], target))
+            if (IsMatch(target, data_[mid]->Value(), base))
                 return true;
-            else if (data_[mid] < target)
+            else if (data_[mid]->Value() < target)
                 start = mid + 1;
             else
                 end = mid - 1;
@@ -64,12 +99,18 @@ public:
         return false;
     }
 
+    bool Match(double target) override
+    {
+        return Match(target, target);
+    }
+
 protected:
-    double tolerance_; 
+    static bool BasicComp(const std::shared_ptr<Point<T>>& p1, const std::shared_ptr<Point<T>>& p2)
+        { return p1->Value() < p2->Value(); }
+
     model::spectrum::ToleranceBy type_;
-    std::vector<double> data_;
-    double lower_;
-    double upper_;
+    double tolerance_;
+    Points data_;
 };
 
 } // namespace algorithm

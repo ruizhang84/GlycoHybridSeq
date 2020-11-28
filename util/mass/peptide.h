@@ -25,8 +25,6 @@ public:
         return mass;
     }
 
-
-protected:
     static double GetAminoAcidMW(const char amino)
     {
         switch (std::toupper(amino))

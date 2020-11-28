@@ -38,6 +38,31 @@ public:
         return mass;
     }
 
+    static double Compute(double mass, const IonType ion)
+    {
+        switch (ion)
+        {
+            case IonType::a:
+                mass = mass - kOxygen * 2 - kHydrogen * 2 - kCarbon;
+                break;
+            case IonType::b:
+                mass = mass - kOxygen - kHydrogen * 2;
+                break;
+            case IonType::c:
+                mass = mass - kOxygen + kHydrogen + kNitrogen;
+                break;
+            case IonType::x:
+                mass += kCarbon + kOxygen - kHydrogen * 2;
+                break;
+            case IonType::y:
+                break;
+            case IonType::z:
+                mass = mass - kNitrogen - kHydrogen * 3;
+                break;
+        }
+        return mass;
+    }
+
     static constexpr double kCarbon = 12.0;
     static constexpr double kNitrogen = 14.003074;
     static constexpr double kOxygen = 15.99491463;

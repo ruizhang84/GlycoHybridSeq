@@ -6,12 +6,13 @@
 #include <cmath>
 #include "point.h"
 #include "../../model/spectrum/spectrum.h"
+#include "search.h"
 
 namespace algorithm {
 namespace search {
 
 template <class T>
-class BucketSearch
+class BucketSearch : public ISearch<T>
 {
 typedef std::vector<std::shared_ptr<Point<T>>> Points;
 typedef std::vector<std::vector<std::shared_ptr<Point<T>>>> Bucket;
@@ -19,14 +20,10 @@ typedef std::vector<std::vector<std::shared_ptr<Point<T>>>> Bucket;
 public:
     BucketSearch(model::spectrum::ToleranceBy type, double tol):
         type_(type), tolerance_(tol){}
+    ~BucketSearch(){}
     
-    void Init(Points inputs, bool sorted=false) 
+    void Init(Points inputs, bool sorted=false) override
     {
-        if (!sorted)
-        {
-            std::sort(inputs.begin(), inputs.end());
-        }
-
         lower_ = INT_MAX;
         upper_ = 0;
         for(const auto& it : inputs)
@@ -53,7 +50,7 @@ public:
 
     // in case when compute delta of two value,
     // to handle ppm correctly, (m1-m2)/base
-    std::vector<T> Search(double expect, double base)
+    std::vector<T> Search(double expect, double base) override
     {
         std::vector<T> result;
         int index = Index(expect);
@@ -103,13 +100,13 @@ public:
        
         return result;
     }
-    std::vector<T> Search(double expect)
+    std::vector<T> Search(double expect) override
     {
         return Search(expect, expect);
     }
 
     // base to handle ppm
-    bool Match(double expect, double base)
+    bool Match(double expect, double base) override
     {
         int index = Index(expect);
 
@@ -135,7 +132,7 @@ public:
 
         return false;
     }
-    bool Match(double expect)
+    bool Match(double expect) override
     {
         return Match(expect, expect);
     }
