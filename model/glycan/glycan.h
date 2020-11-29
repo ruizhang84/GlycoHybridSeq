@@ -27,6 +27,10 @@ public:
     // Mass
     double Mass() { return mass_; }
     void set_mass(double mass) { mass_ = mass; }
+    // derived
+    std::vector<Glycan*> Children() { return children_; }
+    void Add(Glycan* glycan) { children_.push_back(glycan); }
+
     // std::vector<double> Fragments() { return std::vector<double>(fragments_.begin(), fragments_.end()); }
     // std::set<double> FragmentSet() { return fragments_; } 
     // void set_fragments(std::set<double> fragments) 
@@ -79,6 +83,7 @@ public:
     }  
 
     std::vector<int>& Table() { return table_; }
+    const std::vector<int>& TableConst() const { return table_; } 
     void set_table(const std::vector<int>& table) 
         { table_ = table; }
     void set_table(int index, int num)
@@ -107,7 +112,7 @@ protected:
     std::string name_;
     std::vector<int> table_;
     std::map<Monosaccharide, int> composite_; 
-
+    std::vector<Glycan*> children_;
 };
 
 

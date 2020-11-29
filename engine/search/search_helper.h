@@ -22,11 +22,35 @@ public:
         return seq + "|" + std::to_string(pos);
     }
 
+    static std::string MakeKeyGlycoSequence(const std::string glycan_id, const std::string& seq)
+    {
+        return glycan_id + "|" + seq ;
+    }
+
     static std::pair<std::string, int> ExtractSequence(std::string key)
     {
         std::string seq = key.substr(0, key.find("|"));
         int pos = std::stoi(key.substr(seq.length()+1));
         return std::make_pair(seq, pos);
+    }
+
+
+    static std::pair<std::string, std::string> ExtractGlycoSequence(std::string key)
+    {
+        std::string glycan_id = key.substr(0, key.find("|"));
+        std::string peptides = key.substr(glycan_id.length()+1);
+        return std::make_pair(glycan_id, peptides);
+    }
+
+    static double PeakScore(const std::vector<model::spectrum::Peak>& peaks, 
+        const std::unordered_set<int>& peak_indexes)
+    {
+        double score = 0;
+        for(int index : peak_indexes)
+        {
+            score += log(peaks[index].Intensity());
+        }
+        return score;
     }
 
     // for computing the peptide ions
@@ -84,6 +108,19 @@ public:
         }
         return sums * 1.0 / glycan_count;
     }
+
+    static bool Satisify(model::glycan::Glycan*& candidate, model::glycan::Glycan*& result)
+    {
+        const std::vector<int> candidate_table = candidate->TableConst();
+        const std::vector<int> result_table = result->TableConst();
+        for(int i = 0; i < candidate_table.size(); i++)
+        {
+            if (candidate_table[i] < result_table[i])
+                return false;
+        }
+        return true;
+    }
+
 };
 
 

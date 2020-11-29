@@ -85,13 +85,15 @@ public:
                         {
                             // g->set_fragments(node->FragmentSet());
                             // g->AddFragments(mass);
+                            node->Add(g.get()); 
                             glycans_map_[id] = std::move(g);
-                            queue.push_back(glycans_map_[id].get());                              
+                            queue.push_back(glycans_map_[id].get());                         
                         }
-                        // else
-                        // {
-                        //     glycans_map_[id]->AddFragments(mass); 
-                        // }
+                        else
+                        {
+                            node->Add(glycans_map_[id].get());
+                            // glycans_map_[id]->AddFragments(mass); 
+                        }
                     }
                 }
             }
