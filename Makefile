@@ -6,7 +6,7 @@ INCLUDES = -I/usr/local/include -L/usr/local/lib -lboost_unit_test_framework -st
 LIB = -I/usr/local/include -L/usr/local/lib -lpthread
 
 TEST_CASES := binpacking_test search_test io_test glycan_builder_test glycan_test protein_test 
-TEST_CASES_2 := precursor_match_test search_sequence_test
+TEST_CASES_2 := precursor_match_test search_sequence_test search_glycan_test
 
 binpacking_test:
 	$(CC) $(CPPFLAGS) -o test/binpacking_test \
@@ -39,6 +39,10 @@ precursor_match_test:
 search_sequence_test:
 	$(CC) $(CPPFLAGS) -o test/search_sequence_test \
 	engine/search/search_sequence_test.cpp model/glycan/nglycan_complex.cpp $(INCLUDES)
+
+search_glycan_test:
+	$(CC) $(CPPFLAGS) -o test/search_glycan_test \
+	engine/search/search_glycan_test.cpp model/glycan/nglycan_complex.cpp $(INCLUDES)
 
 # test
 test: ${TEST_CASES} ${TEST_CASES_2}

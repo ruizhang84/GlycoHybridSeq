@@ -113,7 +113,7 @@ public:
     {
         const std::vector<int> candidate_table = candidate->TableConst();
         const std::vector<int> result_table = result->TableConst();
-        for(int i = 0; i < candidate_table.size(); i++)
+        for(int i = 0; i < (int) candidate_table.size(); i++)
         {
             if (candidate_table[i] < result_table[i])
                 return false;

@@ -28,25 +28,33 @@ public:
     double Mass() const { return mass_; }
     void set_mass(double mass) { mass_ = mass; }
 
-    std::unordered_map<std::string, std::unordered_set<int>> Matches()
+    std::unordered_map<std::string, 
+        std::unordered_map<std::string, std::unordered_set<int>>> Matches()
         { return matches_; }
-    void set_matches(std::unordered_map<std::string, std::unordered_set<int>> matches)
+    void set_matches(std::unordered_map<std::string, 
+        std::unordered_map<std::string, std::unordered_set<int>>> matches)
         { matches_ = matches; }
 
-    void Add(const std::string& glycopeptides, std::vector<int> peaks)
+    void Add(const std::string& peptide, const std::string& glycan_id, std::vector<int> peaks)
     {
-        if(matches_.find(glycopeptides) == matches_.end())
+        if(matches_.find(peptide) == matches_.end())
         {
-            matches_[glycopeptides] = std::unordered_set<int>();
+            matches_[peptide] = std::unordered_map<std::string, std::unordered_set<int>>();
         }
-        matches_[glycopeptides].insert(peaks.begin(), peaks.end());
+        if (matches_[peptide].find(glycan_id) == matches_[peptide].end())
+        {
+            matches_[peptide].emplace(glycan_id, std::unordered_set<int>());
+        }
+
+        matches_[peptide][glycan_id].insert(peaks.begin(), peaks.end());
     }
 
 protected:
     int miss_ = 1;
     double mass_ = 0;
-    std::unordered_map<std::string, std::unordered_set<int>> matches_;
-
+    // peptide -> glycan_id -> list<peaks>
+    std::unordered_map<std::string, 
+        std::unordered_map<std::string, std::unordered_set<int>>> matches_;
 };
 
 struct PeakNodeComparison
