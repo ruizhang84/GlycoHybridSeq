@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <iomanip>
-
+#include <queue> 
 #include "../../util/io/mgf_parser.h"
 #include "../../util/io/fasta_reader.h"
 #include "../protein/protein_digest.h"
@@ -11,15 +11,29 @@
 #include "../glycan/glycan_builder.h"
 #include "../../algorithm/search/bucket_search.h"
 #include "../../algorithm/search/binary_search.h"
-#include "search_glycan.h"
 #include "search_helper.h"
 #include "precursor_match.h"
-#include "search_glycan.h"
+#include "search_glycan_helper.h"
+// #include "search_glycan.h"
 
 #include <chrono> 
 
 namespace engine{
 namespace search {
+
+bool Satisify(const std::unordered_map<std::string, std::unique_ptr<model::glycan::Glycan>>& glycans_map_,
+    const std::string& identified_glycan_id, const model::glycan::Glycan* glycan)
+{
+    const std::vector<int> identified_glycan_table = 
+        glycans_map_.find(identified_glycan_id)->second->TableConst();
+    const std::vector<int> candidate_glycan_table = glycan->TableConst();
+    for(int i = 0; i < (int) identified_glycan_table.size(); i++)
+    {
+        if (candidate_glycan_table[i] < identified_glycan_table[i])
+            return false;
+    }
+    return true;
+}
 
 
 BOOST_AUTO_TEST_CASE( search_engine_test ) 
@@ -38,7 +52,8 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
     model::spectrum::Spectrum spec = spectrum_reader.GetSpectrum(start_scan);
 
     // read fasta and build peptides
-    util::io::FASTAReader fasta_reader("/home/ruiz/Documents/Glycoseq-Cpp/data/titin.fasta");
+    // util::io::FASTAReader fasta_reader("/home/ruiz/Documents/Glycoseq-Cpp/data/haptoglobin.fasta");
+     util::io::FASTAReader fasta_reader("/home/ruiz/Documents/Glycoseq-Cpp/data/titin.fasta");
     std::vector<model::protein::Protein> proteins = fasta_reader.Read();
  
     engine::protein::Digestion digest;
@@ -64,7 +79,7 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
 
 
     // spectrum matching
-    int special_scan = 8556;
+    int special_scan = 6765;
     double ms1_tol = 10;
     model::spectrum::ToleranceBy ms1_by = model::spectrum::ToleranceBy::PPM;
     std::unique_ptr<algorithm::search::ISearch<std::string>> searcher =
@@ -117,31 +132,32 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
     // std::cout << peak_points.size() << " " << special_spec.PrecursorCharge() << " " << peaks.size()  << std::endl;
 
     // init priority queue
-    std::unordered_map<double, PeakNode> peak_nodes_map;
-    std::priority_queue<PeakNode, std::vector<PeakNode>, PeakNodeComparison> queue;
+    std::unordered_map<double, std::unique_ptr<PeakNode>> peak_nodes_map;
+    std::priority_queue<PeakNode*, std::vector<PeakNode*>, PeakNodeComparison> queue;
+    std::vector<PeakNode*> matched_nodes;
 
     for(const auto& it : results)
     {
         // Y1 mass
         double mass = util::mass::PeptideMass::Compute(it.first) + util::mass::GlycanMass::kHexNAc;
-        std::unordered_map<std::string, std::unordered_set<int>> isomer ({ {kY1, std::unordered_set<int>()}});
         // node matches
         if (peak_nodes_map.find(mass) == peak_nodes_map.end())
         {
-            PeakNode node;
+            std::unique_ptr<PeakNode> node = 
+                std::make_unique<PeakNode>();
             // set mass
-            node.set_mass(mass);
+            node->set_mass(mass);
             // set matches
-            node.Add(it.first, kY1, std::vector<int>());
+            node->Add(it.first, kY1, std::vector<int>());
             // add node 
-            peak_nodes_map[mass] = node;
+            peak_nodes_map[mass] = std::move(node);
             // enqueue
-            queue.push(node);
+            queue.push(peak_nodes_map[mass].get());
         }
         else
         {
             // update glycopeptide match
-            peak_nodes_map[mass].Add(it.first, kY1, std::vector<int>());
+            peak_nodes_map[mass]->Add(it.first, kY1, std::vector<int>());
         }
     }
 
@@ -171,87 +187,175 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
     
     // dynamic programming
 
-        // while (queue.size() > 0)
-        // {
+        while (queue.size() > 0)
+        {
             // get node
-            // PeakNode node = queue.top();
-            // queue.pop();
+            PeakNode* node = queue.top();
+            queue.pop();
 
             // // match peaks
-            // double target = node.Mass();
-            // std::vector<int> matched = more_searcher->Search(target);
+            double target = node->Mass();
+            std::vector<int> matched = more_searcher->Search(target);
             // std::cout << matched.size() << std::endl;
 
             // max if matched a peak
-            // if (matched.size() > 0)
-            // {
-            //     double best_score = 0;
-            //     std::unordered_map<std::string, std::unordered_set<int>> best_matches;
-            //     for(const auto& it : node.Matches())
-            //     {
-            //         double score = SearchHelper::PeakScore(peaks, it.second);
-            //         if (best_score < score)
-            //         {
-            //             best_score = score;
-            //             best_matches.clear();
-            //             best_matches[it.first] = it.second;
-            //         }
-            //         else if (best_score == score)
-            //         {
-            //             best_matches[it.first] = it.second;
-            //         }
-            //     }
-            //     node.set_matches(best_matches);
-            // }
-
-
-
+            node->Max(peaks);
+            
             // update matches
-            // if (matched.size() > 0)
-            // {
-            //     for(auto& it : node.Matches())
-            //     {
-            //         it.second.insert(matched.begin(), matched.end());
-            //     }
-            //     node.set_miss(0);
-            // }
+            if (matched.size() > 0)
+            {
+                // for(const auto& it : node.Matches())
+                // {
+                //     std::cout << it.first << std::endl;
+                //     for(const auto& item : it.second)
+                //     {
+                //         std::cout << item.first << 
+                //             SearchHelper::ComputePeakScore(peaks, item.second) << std::endl;
+                //     }
+                // }
+                // std::cout << std::endl;
+                
+
+                node->Add(matched);
+                node->set_miss(0);
+
+                // for(const auto& it : node.Matches())
+                // {
+                //     std::cout << it.first << std::endl;
+                //     for(const auto& item : it.second)
+                //     {
+                //         std::cout << item.first << 
+                //             SearchHelper::ComputePeakScore(peaks, item.second) << std::endl;
+                //     }
+                // }
+                matched_nodes.push_back(node);
+
+            }
+
+            if (node->Missing() > 5)
+                continue;
 
             // extending queue
-            // for(const auto& it : node.Matches())
-            // {
-            //     std::pair<std::string, std::string> glypeptide = SearchHelper::ExtractGlycoSequence(it.first);
-            //     model::glycan::Glycan* glycan = glycans_map_.find(glypeptide.first)->second.get();
+            for(const auto& it : node->Matches())
+            {
+                std::string peptide = it.first;
+                for(const auto& gt : it.second)
+                {
+                    std::string glycan_id = gt.first;
+                    std::vector<int> peak_indexes(gt.second.begin(), gt.second.end());
 
-            //     for(const auto& g : glycan->Children())
+                    model::glycan::Glycan* glycan = glycans_map_.find(glycan_id)->second.get();
+                    for(const auto& g : glycan->Children())
+                    {
+                        double mass = g->Mass() + util::mass::PeptideMass::Compute(peptide);
+                        if (peak_nodes_map.find(mass) == peak_nodes_map.end())
+                        {
+                            std::unique_ptr<PeakNode> next = 
+                                std::make_unique<PeakNode>();
+                            // set mass
+                            next->set_mass(mass);
+                            // set matches
+                            next->Add(peptide, g->ID(), peak_indexes);
+                            // set missing
+                            next->set_miss(node->Missing() + 1);
+                            // add node 
+                            peak_nodes_map[mass] = std::move(next);
+                            // enqueue
+                            queue.push(peak_nodes_map[mass].get());
+                        }
+                        else
+                        {
+                            // std::cout << "here" << std::endl;
+                            PeakNode* next = peak_nodes_map[mass].get();
+                            // set missing
+                            next->set_miss(std::min(next->Missing(), node->Missing()+1));
+                            // set matches
+                            next->Add(peptide, g->ID(),  peak_indexes);
+                        }
+                    }
+                }
+            }
+
+            // if (queue.size() > 8)
+            // {
+            //     while (queue.size() > 0)
             //     {
-            //         double mass = g->Mass() + util::mass::PeptideMass::Compute(glypeptide.second);
-            //         if (peak_nodes_map.find(mass) == peak_nodes_map.end())
+            //         PeakNode node = queue.top();
+            //         queue.pop();
+            //         std::cout << node.Mass() << " :" << std::endl;
+            //         for(const auto& it : node.Matches())
             //         {
-            //             PeakNode next;
-            //             // set mass
-            //             next.set_mass(mass);
-            //             // set matches
-            //             next.set_matches(std::unordered_map<std::string, std::unordered_set<int>>
-            //                 ({ {SearchHelper::MakeKeyGlycoSequence(g->ID(), glypeptide.second), it.second} }));
-            //             // set missing
-            //             next.set_miss(node.Missing() + 1);
-            //             // add node 
-            //             peak_nodes_map[mass] = next;
-            //             // enqueue
-            //             queue.push(node);
-            //         }
-            //         else
-            //         {
-            //             PeakNode next = peak_nodes_map[mass];
-            //             // set missing
-            //             next.set_miss(std::min(next.Missing(), node.Missing() + 1));
-            //             // set matches
-            //             next.set_matches(std::unordered_map<std::string, std::unordered_set<int>>
-            //                 ({ {SearchHelper::MakeKeyGlycoSequence(g->ID(), glypeptide.second), it.second} }));
+            //             std::cout << it.first << std::endl;
+            //             for(const auto& item : it.second)
+            //             {
+            //                 std::cout << item.first << " " << SearchHelper::ComputePeakScore(peaks, item.second) << std::endl;
+            //             }
             //         }
             //     }
             // }
+        }
+        // std::cout << peak_nodes_map.size() << std::endl;
+        // for(auto& it : peak_nodes_map)
+        // {
+        //     std::cout << it.first<< " : " << std::endl;
+        //     for(const auto& j : it.second->Matches())
+        //     {
+        //         std::cout << j.first << std::endl;
+        //         for(const auto& item : j.second)
+        //         {
+        //             std::cout << glycans_map_.find(item.first)->second->Name() <<  item.first << " " << SearchHelper::ComputePeakScore(peaks, item.second) << std::endl;
+        //         }
+        //     }
+        //     std::cout << std::endl;
         // }
+
+        // for(const auto& it : matched_nodes)
+        // {
+        //     for(const auto& j : it->Matches())
+        //     {
+        //         std::cout << j.first << std::endl;
+        //         for(const auto& item : j.second)
+        //         {
+        //             std::cout << glycans_map_.find(item.first)->second->Name() <<  item.first << " " << SearchHelper::ComputePeakScore(peaks, item.second) << std::endl;
+        //         }
+        //     }
+        //     std::cout << std::endl;
+        // }
+
+        std::unordered_map<std::string, std::unordered_set<int>> more_results;
+        for(const auto& node : matched_nodes)
+        {
+            for(const auto& it : node->Matches())
+            {
+                // std::string peptide_seq = it.first;
+                // std::unordered_map<std::string, std::unordered_set<int>> matched = it.second;
+                std::vector<model::glycan::Glycan*> candidate_glycan = results.find(it.first)->second;
+                for(const auto& g : it.second)
+                {
+                    for(const auto& glycan : candidate_glycan)
+                    {
+                        if (Satisify(glycans_map_, g.first, glycan))
+                        {
+                            std::string key = SearchHelper::MakeKeyGlycoSequence(glycan->ID(), it.first);
+                            if(more_results.find(key) == more_results.end())
+                            {
+                                more_results[key] = std::unordered_set<int>();
+                            }
+                            more_results[key].insert(g.second.begin(), g.second.end());
+                        }
+                    }
+
+                }
+            }
+        }
+
+        for(const auto& it : more_results)
+        {
+
+            std::cout << it.first << " :"  << SearchHelper::ComputePeakScore(peaks, it.second) << std::endl;
+            
+        }
+
 
 
     auto stop = std::chrono::high_resolution_clock::now(); 

@@ -42,7 +42,7 @@ public:
         return std::make_pair(glycan_id, peptides);
     }
 
-    static double PeakScore(const std::vector<model::spectrum::Peak>& peaks, 
+    static double ComputePeakScore(const std::vector<model::spectrum::Peak>& peaks, 
         const std::unordered_set<int>& peak_indexes)
     {
         double score = 0;
@@ -107,18 +107,6 @@ public:
             sums += glycan->Mass();
         }
         return sums * 1.0 / glycan_count;
-    }
-
-    static bool Satisify(model::glycan::Glycan*& candidate, model::glycan::Glycan*& result)
-    {
-        const std::vector<int> candidate_table = candidate->TableConst();
-        const std::vector<int> result_table = result->TableConst();
-        for(int i = 0; i < (int) candidate_table.size(); i++)
-        {
-            if (candidate_table[i] < result_table[i])
-                return false;
-        }
-        return true;
     }
 
 };

@@ -20,6 +20,9 @@ namespace search{
 
 class PeakNode
 {
+// peptide -> glycan_id -> list<peaks>
+typedef std::unordered_map<std::string, 
+        std::unordered_map<std::string, std::unordered_set<int>>> PeakMatch;
 public:
     PeakNode() = default;
     
@@ -28,9 +31,7 @@ public:
     double Mass() const { return mass_; }
     void set_mass(double mass) { mass_ = mass; }
 
-    std::unordered_map<std::string, 
-        std::unordered_map<std::string, std::unordered_set<int>>> Matches()
-        { return matches_; }
+    PeakMatch Matches() { return matches_; }
     void set_matches(std::unordered_map<std::string, 
         std::unordered_map<std::string, std::unordered_set<int>>> matches)
         { matches_ = matches; }
@@ -48,20 +49,53 @@ public:
 
         matches_[peptide][glycan_id].insert(peaks.begin(), peaks.end());
     }
+    void Add(std::vector<int> peaks)
+    {
+        for(auto& it : matches_)
+        {
+            for(auto& g: it.second)
+            {
+                g.second.insert(peaks.begin(), peaks.end());
+            }
+        }
+    }
+    void Max(std::vector<model::spectrum::Peak> peaks)
+    {
+        PeakMatch best;
+        for(const auto& it : matches_)
+        {
+            best[it.first] = std::unordered_map<std::string, std::unordered_set<int>>();
+            double best_score = 0;
+            for(const auto& g: it.second)
+            {
+                double score = SearchHelper::ComputePeakScore(peaks, g.second);
+                if (best_score < score)
+                {
+                    best_score = score;
+                    best[it.first].clear();
+                    best[it.first][g.first] = g.second;
+                }
+                else if (best_score == score)
+                {
+                    best[it.first][g.first] = g.second;
+                }
+            }
+        }
+        matches_ = best;
+    }
+
 
 protected:
     int miss_ = 1;
     double mass_ = 0;
-    // peptide -> glycan_id -> list<peaks>
-    std::unordered_map<std::string, 
-        std::unordered_map<std::string, std::unordered_set<int>>> matches_;
+    PeakMatch matches_;
 };
 
 struct PeakNodeComparison
 {
-    bool operator()(const PeakNode& node, const PeakNode& other) const
+    bool operator()(PeakNode* node, PeakNode* other) const
     {
-        return node.Mass() > other.Mass();
+        return node->Mass() > other->Mass();
     }
 };
 

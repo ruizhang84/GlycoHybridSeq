@@ -26,7 +26,7 @@ public:
         searcher_(std::move(searcher)){}
 
     // peptide seq, glycan*
-    std::unordered_map<std::string, std::vector<model::spectrum::Peak>> Search(
+    std::unordered_map<std::string, std::unordered_set<int>> Search(
         const std::vector<model::spectrum::Peak>& peaks, int max_charge, 
         const std::unordered_map<std::string, std::vector<model::glycan::Glycan*>>& candidate)
     {
@@ -51,18 +51,7 @@ public:
                 }
             }
         }
-
-        // convert to peak results
-        std::unordered_map<std::string, std::vector<model::spectrum::Peak>> peak_results;
-        for(const auto& it : results)
-        {
-            peak_results[it.first] = std::vector<model::spectrum::Peak>();
-            for(int index : it.second)
-            {
-                peak_results[it.first].push_back(peaks[index]);
-            }
-        }
-        return peak_results;
+        return results;
     }
 
 protected:
