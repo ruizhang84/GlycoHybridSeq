@@ -19,6 +19,7 @@
 #include "../engine/glycan/glycan_builder.h"
 #include "../engine/search/precursor_match.h"
 #include "../engine/analysis/multi_comparison.h"
+#include "../engine/analysis/fdr_filter.h"
 
 
 const char *argp_program_version =
@@ -51,11 +52,11 @@ static struct argp_option options[] = {
 };
 
 static std::string default_spectra_path = 
-        "/home/yu/Documents/GlycoSeq-Cpp/data/ZC_20171218_C16_R1.mgf";
+        "/home/ruiz/Documents/GlycoCrushSeq/data/ZC_20171218_C22_R1.mgf";
 static std::string default_fasta_path = 
-        "/home/yu/Documents/GlycoSeq-Cpp/data/haptoglobin.fasta";
+        "/home/ruiz/Documents/GlycoCrushSeq/data/haptoglobin.fasta";
 static std::string default_decoy_path = 
-        "/home/yu/Documents/GlycoSeq-Cpp/data/titin.fasta";
+        "/home/ruiz/Documents/GlycoCrushSeq/data/titin.fasta";
 static std::string default_out_path = "result.csv";
 static std::string default_digestion = "TG";
 
@@ -275,11 +276,13 @@ int main(int argc, char *argv[])
     std::cout << "Total target:" << targets.size() <<" decoy:" << decoys.size() << std::endl;
 
     // compute p value
-    engine::analysis::MultiComparison tester(parameter.fdr_rate);
-    std::vector<engine::analysis::SearchResult> results = tester.Tests(targets, decoys);
+    engine::analysis::FDRFilter tester(parameter.fdr_rate);
+    tester.set_data(targets, decoys);
+    tester.Init();
+    std::vector<engine::analysis::SearchResult> results = tester.Filter();
 
     // output analysis results
-    ReportResults(out_path, results);
+    ReportResults(out_path, ConvertComposition(results, builder->GlycanMapsRef()));
 
     auto stop = std::chrono::high_resolution_clock::now(); 
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start); 

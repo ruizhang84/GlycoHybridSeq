@@ -2,6 +2,8 @@
 #define APP_SEARCH_HELPER_H_
 
 #include <map>
+#include <string>
+#include <unordered_set>
 #include <unordered_map>
 #include <fstream>
 
@@ -9,9 +11,33 @@
 #include "../engine/protein/protein_digest.h"
 #include "../engine/protein/protein_ptm.h"
 #include "../engine/analysis/search_result.h"
+#include "../engine/analysis/search_result.h"
 
 
 // generate peptides by digestion
+std::vector<engine::analysis::SearchResult>ConvertComposition(
+    const std::vector<engine::analysis::SearchResult>& results, 
+    const std::unordered_map<std::string, std::unique_ptr<model::glycan::Glycan>>& glycans_map)
+{
+    std::vector<engine::analysis::SearchResult> res;
+    std::unordered_set<std::string> seen;
+    for(const auto& it : results)
+    {
+        std::string glycan = glycans_map.find(it.Glycan())->second->Name();
+        std::string key = std::to_string(it.Scan()) + "|" +  std::to_string(it.ModifySite()) + "|" +  
+            it.Sequence()+ "|" + glycan;
+        if (seen.find(key) == seen.end())
+        {
+            seen.insert(key);
+            engine::analysis::SearchResult r = it;
+            r.set_glycan(glycan);
+            res.push_back(r);
+        }     
+    }
+    return res;
+}
+
+
 std::unordered_set<std::string> PeptidesDigestion
     (const std::string& fasta_path, const SearchParameter& parameter)
 {
