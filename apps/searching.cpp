@@ -231,9 +231,8 @@ int main(int argc, char *argv[])
     SearchParameter parameter = GetParameter(arguments);
 
     // read spectrum
-    std::string path = "/home/ruiz/Documents/GlycoCrushSeq/data/ZC_20171218_C22_R1.mgf";
     std::unique_ptr<util::io::SpectrumParser> parser = std::make_unique<util::io::MGFParser>();
-    util::io::SpectrumReader spectrum_reader(path, std::move(parser));
+    util::io::SpectrumReader spectrum_reader(spectra_path, std::move(parser));
 
     // read fasta and build peptides
     std::vector<std::string> peptides, decoy_peptides;
