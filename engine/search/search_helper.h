@@ -24,7 +24,7 @@ public:
 
     static std::string MakeKeyGlycoSequence(const std::string glycan_id, const std::string& seq)
     {
-        return glycan_id + "|" + seq ;
+        return seq + "|" + glycan_id;
     }
 
     static std::pair<std::string, int> ExtractSequence(std::string key)
@@ -34,12 +34,11 @@ public:
         return std::make_pair(seq, pos);
     }
 
-
     static std::pair<std::string, std::string> ExtractGlycoSequence(std::string key)
     {
-        std::string glycan_id = key.substr(0, key.find("|"));
-        std::string peptides = key.substr(glycan_id.length()+1);
-        return std::make_pair(glycan_id, peptides);
+        std::string seq = key.substr(0, key.find("|"));
+        std::string glycan_id = key.substr(seq.length()+1);
+        return std::make_pair(seq, glycan_id);
     }
 
     static double ComputePeakScore(const std::vector<model::spectrum::Peak>& peaks, 
