@@ -113,7 +113,6 @@ protected:
 
             // precusor
             auto results = precursor_runner.Match(spectrum.PrecursorMZ(), spectrum.PrecursorCharge());
-
             if (results.empty()) continue;
 
             // msms

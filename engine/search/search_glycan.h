@@ -126,8 +126,8 @@ protected:
                 matched_nodes.push_back(node);
             }
                 
-            if (node->Missing() > 5)
-                continue;
+            // if (node->Missing() > 5)
+            //     continue;
 
             // extending queue
             for(const auto& it : node->Matches())

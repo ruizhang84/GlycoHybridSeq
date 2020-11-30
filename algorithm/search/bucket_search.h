@@ -165,6 +165,7 @@ protected:
 
         // fill the bucket
         int size = ceil((upper_ - lower_ + 1.0) / tolerance_);
+        size = std::max(size, 0);
         data_.assign(size, std::vector<std::shared_ptr<Point<T>>>());
 
         // assign the value
@@ -186,6 +187,7 @@ protected:
         // fill the bucket
         double ratio = 1.0/(1.0 - tolerance_ / 1000000);
         int size = ceil(log(upper_ / lower_) / log(ratio));
+        size = std::max(size, 0);
         data_.assign(size, std::vector<std::shared_ptr<Point<T>>>());
 
         // assign the value
