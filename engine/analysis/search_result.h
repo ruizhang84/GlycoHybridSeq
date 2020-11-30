@@ -1,14 +1,17 @@
 #ifndef ENGINE_ANALYSIS_SEARCH_RESULT_H_
 #define ENGINE_ANALYSIS_SEARCH_RESULT_H_
 
+
+#include "../../model/spectrum/peak.h"
+#include "../../model/glycan/glycan.h"
+
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <cmath> 
 #include <memory>
 #include <algorithm>
-#include "../../model/spectrum/peak.h"
-#include "../../model/glycan/glycan.h"
+
 
 
 namespace engine{

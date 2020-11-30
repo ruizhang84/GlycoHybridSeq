@@ -12,6 +12,7 @@
 #include "../../model/spectrum/spectrum.h"
 #include "../../util/mass/ion.h"
 #include "../../util/mass/spectrum.h"
+#include "../protein/protein_ptm.h"
 #include "search_helper.h"
 
 

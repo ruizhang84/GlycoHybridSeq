@@ -1,4 +1,4 @@
-#Created by Rui 5/17/20
+#Created by Rui 11/29/2020
 
 CC = c++
 CPPFLAGS =-g -Wall -std=c++14 -O3
@@ -7,6 +7,10 @@ LIB = -I/usr/local/include -L/usr/local/lib -lpthread
 
 TEST_CASES := binpacking_test search_test io_test glycan_builder_test glycan_test protein_test 
 TEST_CASES_2 := precursor_match_test search_sequence_test search_glycan_test search_engine_test multi_comparison_test
+
+search:
+	$(CC) $(CPPFLAGS) -o searching \
+	apps/searching.cpp model/glycan/nglycan_complex.cpp $(LIB)
 
 binpacking_test:
 	$(CC) $(CPPFLAGS) -o test/binpacking_test \
