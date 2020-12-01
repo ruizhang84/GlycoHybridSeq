@@ -47,7 +47,17 @@ public:
             double target = mass - glycan->Mass();
             if (target <= 0)
                 continue;
+
             std::vector<std::string> peptides = searcher_->Search(target, mass);
+            if (peptides_.size() == 0)
+                continue;
+                
+            // check pentacore
+            const std::map<model::glycan::Monosaccharide, int>&  composition = 
+                glycan->CompositionConst();
+            if (composition.find(model::glycan::Monosaccharide::GlcNAc) == composition.end() 
+                || composition.find(model::glycan::Monosaccharide::GlcNAc)->second < 3)
+                continue;
 
             for(const auto& seq : peptides)
             {

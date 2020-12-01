@@ -88,13 +88,10 @@ public:
                 for(const auto& g : glycans_map[peptide])
                 {
                     // get index
-                    std::vector<int> peak_index;
                     std::unordered_set<int> peptides_index = peptide_results.find(p)->second;
                     std::unordered_set<int> glycans_index = glycan_results.find(g)->second;
-                    peak_index.insert(peak_index.end(), peptides_index.begin(), peptides_index.end());
-                    peak_index.insert(peak_index.end(), glycans_index.begin(), glycans_index.end());
                     // compute score
-                    double score = ComputePeakScore(peaks, peak_index);
+                    double score = ComputePeakScore(peaks, peptides_index, glycans_index);
                     // create results if higher score
                     if (score > best_score)
                     {
@@ -115,27 +112,42 @@ public:
                     }
                 }
             }
-
         }
         return results;
     }
 
     double ComputePeakScore(const std::vector<model::spectrum::Peak>& peaks, 
-        const std::vector<int>& index) const
+        const std::unordered_set<int>& peptides_index, 
+        const std::unordered_set<int>& glycans_index) const
     {
-        double value = 0;
-        double sum = 0;
-        for(const auto& it : index)
-        {
-            value += peaks[it].Intensity() * peaks[it].Intensity();
-        }
+        // double value = 0;
+        // double sum = 0;
+        // std::vector<int> peak_index;
+        // peak_index.insert(peak_index.end(), peptides_index.begin(), peptides_index.end());
+        // peak_index.insert(peak_index.end(), glycans_index.begin(), glycans_index.end());
 
-        for(const auto& it : peaks)
+        double score = 0;
+        for(int index : peptides_index)
         {
-            sum += it.Intensity() * it.Intensity();
+            score += log(peaks[index].Intensity());
         }
+        for(int index : glycans_index)
+        {
+            score += log(peaks[index].Intensity());
+        }
+        return score;
 
-        return std::sqrt(value / sum);
+        // for(const auto& it : peak_index)
+        // {
+        //     value += std::sqrt(peaks[it].Intensity());
+        // }
+
+        // for(const auto& it : peaks)
+        // {
+        //     sum += it.Intensity();
+        // }
+
+        // return value / std::sqrt(sum * (int) peak_index.size());
     }
 
 };

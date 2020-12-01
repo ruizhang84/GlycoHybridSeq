@@ -37,13 +37,18 @@ std::vector<engine::analysis::SearchResult>ConvertComposition(
     return res;
 }
 
-
-std::unordered_set<std::string> PeptidesDigestion
-    (const std::string& fasta_path, const SearchParameter& parameter)
+std::vector<model::protein::Protein> ReadProteins
+    (const std::string& fasta_path)
 {
     util::io::FASTAReader fasta_reader(fasta_path);
     std::vector<model::protein::Protein> proteins = fasta_reader.Read();
    
+    return proteins;
+}
+
+std::unordered_set<std::string> PeptidesDigestion
+    (const std::vector<model::protein::Protein> proteins, const SearchParameter& parameter)
+{
     engine::protein::Digestion digest;
     digest.set_miss_cleavage(parameter.miss_cleavage);
     std::unordered_set<std::string> peptides;
@@ -85,13 +90,14 @@ void ReportResults(const std::string& out_path,
 {
     std::ofstream outfile;
     outfile.open (out_path);
-    outfile << "scan#,peptide,glycan,score\n";
+    outfile << "scan,peptide,glycan,site,score\n";
 
     for(auto it : results)
     {
         outfile << it.Scan() << ",";
         outfile << it.Sequence() << ",";
         outfile << it.Glycan() << ",";
+        outfile << it.ModifySite() << ",";
         outfile << it.Score() << "\n";
     }
     outfile.close();

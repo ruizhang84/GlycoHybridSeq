@@ -21,6 +21,7 @@ public:
     virtual std::vector<T> Search(double expect) {return std::vector<T>();}
     virtual bool Match(double expect, double base) {return false;}
     virtual bool Match(double expect) {return false;}
+
 };
 
 } // namespace algorithm

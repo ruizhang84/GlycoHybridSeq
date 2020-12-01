@@ -236,21 +236,25 @@ int main(int argc, char *argv[])
 
     // read fasta and build peptides
     std::vector<std::string> peptides, decoy_peptides;
-    std::unordered_set<std::string> seqs = PeptidesDigestion(fasta_path, parameter);
+    std::vector<model::protein::Protein> proteins = ReadProteins(fasta_path);
+    std::unordered_set<std::string> seqs = PeptidesDigestion(proteins, parameter);
     peptides.insert(peptides.end(), seqs.begin(), seqs.end());
     if (arguments.decoy_set)
     {
-        std::unordered_set<std::string> decoy_seqs = PeptidesDigestion(decoy_path, parameter);
+        std::vector<model::protein::Protein> decoy_proteins = ReadProteins(decoy_path);
+        std::unordered_set<std::string> decoy_seqs = PeptidesDigestion(decoy_proteins, parameter);
         decoy_peptides.insert(decoy_peptides.end(), decoy_seqs.begin(), decoy_seqs.end());
     }
     else
     {
-        for(const auto& s : seqs)
+        for(auto& p: proteins)
         {
-            std::string decoy_s(s);
-            std::reverse(decoy_s.begin(), decoy_s.end());
-            decoy_peptides.push_back(decoy_s);
+            std::string seq = p.Sequence();
+            std::reverse(seq.begin(), seq.end());
+            p.set_sequence(seq);
         }
+        std::unordered_set<std::string> decoy_seqs = PeptidesDigestion(proteins, parameter);
+        decoy_peptides.insert(decoy_peptides.end(), decoy_seqs.begin(), decoy_seqs.end());
     }
    
     // // build glycans
@@ -279,6 +283,9 @@ int main(int argc, char *argv[])
     tester.set_data(targets, decoys);
     tester.Init();
     std::vector<engine::analysis::SearchResult> results = tester.Filter();
+    // engine::analysis::MultiComparison tester(parameter.fdr_rate);
+    // std::vector<engine::analysis::SearchResult> results = tester.Tests(targets, decoys);
+
 
     // output analysis results
     ReportResults(out_path, ConvertComposition(results, builder->GlycanMapsRef()));

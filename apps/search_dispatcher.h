@@ -91,6 +91,7 @@ protected:
     {
         std::unique_ptr<algorithm::search::ISearch<std::string>> searcher =
             std::make_unique<algorithm::search::BucketSearch<std::string>>(parameter_.ms1_by, parameter_.ms1_tol);
+        
         std::unique_ptr<algorithm::search::ISearch<std::string>> more_searcher =
             std::make_unique<algorithm::search::BucketSearch<std::string>>(parameter_.ms2_by, parameter_.ms2_tol);    
         std::unique_ptr<algorithm::search::ISearch<int>> extra_searcher =

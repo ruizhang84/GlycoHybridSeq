@@ -25,10 +25,9 @@ namespace search {
 BOOST_AUTO_TEST_CASE( search_engine_test )
 {
     // read spectrum
-    std::string path = "/home/ruiz/Documents/GlycoCrushSeq/data/ZC_20171218_C22_R1.mgf";
+    std::string path = "/home/ruiz/Documents/GlycoCrushSeq/data/MGF/ZC_20171218_H84_R2.mgf";
     std::unique_ptr<util::io::SpectrumParser> parser = std::make_unique<util::io::MGFParser>();
     util::io::SpectrumReader spectrum_reader(path, std::move(parser));
-
 
     int start_scan = spectrum_reader.GetFirstScan();
     int last_scan = spectrum_reader.GetLastScan();
@@ -38,8 +37,15 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
     model::spectrum::Spectrum spec = spectrum_reader.GetSpectrum(start_scan);
 
     // read fasta and build peptides
-    util::io::FASTAReader fasta_reader("/home/ruiz/Documents/Glycoseq-Cpp/data/haptoglobin.fasta");
+    util::io::FASTAReader fasta_reader("/home/ruiz/Documents/GlycoCrushSeq/data/haptoglobin.fasta");
     std::vector<model::protein::Protein> proteins = fasta_reader.Read();
+
+    for(auto& p: proteins)
+    {
+        std::string seq = p.Sequence();
+        std::reverse(seq.begin(), seq.end());
+        p.set_sequence(seq);
+    }
 
     engine::protein::Digestion digest;
     digest.SetProtease(engine::protein::Proteases::Trypsin);
@@ -47,14 +53,15 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
          engine::protein::ProteinPTM::ContainsNGlycanSite);
     digest.SetProtease(engine::protein::Proteases::GluC);
     std::vector<std::string> peptides;
+    peptides.insert(peptides.end(), seqs.begin(), seqs.end());
     for(auto& it : seqs)
     {
         std::unordered_set<std::string> seq = digest.Sequences(it,
          engine::protein::ProteinPTM::ContainsNGlycanSite);
         peptides.insert(peptides.end(), seq.begin(), seq.end());
     }
-    BOOST_CHECK(std::find(peptides.begin(), peptides.end(), "VVLHPNYSQVD") != peptides.end());
-
+    // BOOST_CHECK(std::find(peptides.begin(), peptides.end(), "VVLHPNYSQVD") != peptides.end());
+    BOOST_CHECK(std::find(peptides.begin(), peptides.end(), "KDNLTYVGDGETR") != peptides.end());
 
     // // build glycans
     int hexNAc = 12, hex = 12, Fuc = 5, NeuAc = 4, NeuGc = 0;
@@ -64,7 +71,7 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
 
 
     // spectrum matching
-    int special_scan = 12500;
+    int special_scan = 6465;
     double ms1_tol = 10;
     model::spectrum::ToleranceBy ms1_by = model::spectrum::ToleranceBy::PPM;
     std::unique_ptr<algorithm::search::ISearch<std::string>> searcher =
@@ -101,23 +108,24 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
     GlycanSearch spectrum_searcher(std::move(extra_searcher), builder->GlycanMapsRef());
     auto glycan_results = spectrum_searcher.Search(special_spec.Peaks(), special_spec.PrecursorCharge(), results);
 
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    std::cout << duration.count() << std::endl;
+    
 
-    // for(const auto& it : glycan_results)
-    // {
-    //     std::cout << it.first << " :"  << SearchHelper::ComputePeakScore(special_spec.Peaks(), it.second) << std::endl;
+    for(const auto& it : glycan_results)
+    {
+        std::cout << it.first << " :" << it.second.size() << " " << SearchHelper::ComputePeakScore(special_spec.Peaks(), it.second) << std::endl;
 
-    // }
-    // for(const auto& it : peptide_results)
-    // {
-    //     std::cout << it.first << " :"  << SearchHelper::ComputePeakScore(special_spec.Peaks(), it.second) << std::endl;
+    }
+    for(const auto& it : peptide_results)
+    {
+        std::cout << it.first << " :"  << it.second.size() << " " << SearchHelper::ComputePeakScore(special_spec.Peaks(), it.second) << std::endl;
 
-    // }
+    }
 
     engine::analysis::SearchAnalyzer analyzer;
     auto searched = analyzer.Analyze(special_scan, special_spec.Peaks(), peptide_results, glycan_results);
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    std::cout << duration.count() << std::endl;
     for(const auto& r : searched)
     {
         std::cout << r.Sequence() << " | " << r.Glycan() << " | " << r.Scan() << " " << r.Score() << std::endl;

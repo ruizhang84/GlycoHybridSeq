@@ -126,7 +126,7 @@ protected:
                 matched_nodes.push_back(node);
             }
                 
-            if (node->Missing() > 5)
+            if (node->Missing() > kMissing)
                 continue;
 
             // extending queue
@@ -225,6 +225,7 @@ protected:
     std::unique_ptr<algorithm::search::ISearch<int>> searcher_;
     const std::unordered_map<std::string, std::unique_ptr<model::glycan::Glycan>>& glycans_map_;
     const std::string kY1 = "1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ";
+    const int kMissing = 5;
     std::unordered_map<std::string, double> peptide_mass_;
 };
 
