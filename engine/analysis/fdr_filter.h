@@ -16,6 +16,7 @@ public:
 
     void Init()
     {
+        
          // init
         cutoff_ = -1;
         if (decoy_.size() == 0 || target_.size() == 0 || 
@@ -138,7 +139,7 @@ public:
             int scan = it.Scan();
             if (score_map[scan] > it.Score())
                 continue;
-            decoys.push_back(it);
+            decoy_.push_back(it);
         }
     }
 

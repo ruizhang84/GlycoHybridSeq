@@ -25,7 +25,7 @@ namespace search {
 BOOST_AUTO_TEST_CASE( search_engine_test )
 {
     // read spectrum
-    std::string path = "/home/ruiz/Documents/GlycoCrushSeq/data/MGF/ZC_20171218_H84_R2.mgf";
+    std::string path = "/home/ruiz/Documents/GlycoCrushSeq/data/MGF2/ZC_20171218_C16_R2.mgf";
     std::unique_ptr<util::io::SpectrumParser> parser = std::make_unique<util::io::MGFParser>();
     util::io::SpectrumReader spectrum_reader(path, std::move(parser));
 
@@ -54,14 +54,28 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
     digest.SetProtease(engine::protein::Proteases::GluC);
     std::vector<std::string> peptides;
     peptides.insert(peptides.end(), seqs.begin(), seqs.end());
+
     for(auto& it : seqs)
     {
         std::unordered_set<std::string> seq = digest.Sequences(it,
          engine::protein::ProteinPTM::ContainsNGlycanSite);
         peptides.insert(peptides.end(), seq.begin(), seq.end());
     }
+
+    std::unordered_set<std::string> seen;
+    int count = 0;
+    for(auto it : peptides)
+    {
+        if (seen.find(it) == seen.end())
+        {
+            seen.insert(it);
+            count++;
+        }
+            
+    }
+    std::cout << count << std::endl;
     // BOOST_CHECK(std::find(peptides.begin(), peptides.end(), "VVLHPNYSQVD") != peptides.end());
-    BOOST_CHECK(std::find(peptides.begin(), peptides.end(), "KDNLTYVGDGETR") != peptides.end());
+    // BOOST_CHECK(std::find(peptides.begin(), peptides.end(), "KDNLTYVGDGETR") != peptides.end());
 
     // // build glycans
     int hexNAc = 12, hex = 12, Fuc = 5, NeuAc = 4, NeuGc = 0;
@@ -71,7 +85,7 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
 
 
     // spectrum matching
-    int special_scan = 6465;
+    int special_scan = 12224;
     double ms1_tol = 10;
     model::spectrum::ToleranceBy ms1_by = model::spectrum::ToleranceBy::PPM;
     std::unique_ptr<algorithm::search::ISearch<std::string>> searcher =
@@ -82,7 +96,7 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
     auto special_spec = spectrum_reader.GetSpectrum(special_scan);
 
     auto results = precursor_runner.Match(special_spec.PrecursorMZ(), special_spec.PrecursorCharge());
-    // std::cout << special_spec.Scan() << " : " << std::endl;
+    std::cout << special_spec.Scan() << " : " << std::endl;
     // for(auto it : results)
     // {
     //     std::cout << it.first << std::endl;
@@ -131,7 +145,7 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
         std::cout << r.Sequence() << " | " << r.Glycan() << " | " << r.Scan() << " " << r.Score() << std::endl;
     }
 
-
+   
 }
 
 

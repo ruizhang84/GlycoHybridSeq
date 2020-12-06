@@ -120,34 +120,34 @@ public:
         const std::unordered_set<int>& peptides_index, 
         const std::unordered_set<int>& glycans_index) const
     {
-        // double value = 0;
-        // double sum = 0;
-        // std::vector<int> peak_index;
-        // peak_index.insert(peak_index.end(), peptides_index.begin(), peptides_index.end());
-        // peak_index.insert(peak_index.end(), glycans_index.begin(), glycans_index.end());
+        double value = 0;
+        double sum = 0;
+        std::vector<int> peak_index;
+        peak_index.insert(peak_index.end(), peptides_index.begin(), peptides_index.end());
+        peak_index.insert(peak_index.end(), glycans_index.begin(), glycans_index.end());
 
-        double score = 0;
-        for(int index : peptides_index)
-        {
-            score += log(peaks[index].Intensity());
-        }
-        for(int index : glycans_index)
-        {
-            score += log(peaks[index].Intensity());
-        }
-        return score;
-
-        // for(const auto& it : peak_index)
+        // double score = 0;
+        // for(int index : peptides_index)
         // {
-        //     value += std::sqrt(peaks[it].Intensity());
+        //     score += log(peaks[index].Intensity());
         // }
-
-        // for(const auto& it : peaks)
+        // for(int index : glycans_index)
         // {
-        //     sum += it.Intensity();
+        //     score += log(peaks[index].Intensity());
         // }
+        // return score;
 
-        // return value / std::sqrt(sum * (int) peak_index.size());
+        for(const auto& it : peak_index)
+        {
+            value += log(peaks[it].Intensity());
+        }
+
+        for(const auto& it : peaks)
+        {
+            sum += it.Intensity();
+        }
+
+        return value / log(sum);
     }
 
 };

@@ -64,7 +64,7 @@ public:
             mass_list.push_back(util::mass::IonMass::Compute(mass, util::mass::IonType::b));
             mass_list.push_back(util::mass::IonMass::Compute(mass, util::mass::IonType::c));
         }
-        mass = util::mass::PeptideMass::Compute(seq.substr(pos+1, seq.length()-pos));
+        mass = util::mass::PeptideMass::Compute(seq.substr(pos+1, seq.length()-pos-1));
         for (int i = pos; i >= 1; i--)
         {
             const char amino = seq[i];
