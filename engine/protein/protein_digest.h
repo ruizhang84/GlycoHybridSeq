@@ -3,13 +3,28 @@
 
 #include <vector>
 #include <string>
+#include <algorithm>
 #include <functional>
 #include <unordered_set>
+#include "protein_ptm.h"
 
 namespace engine {
 namespace protein {
 
 enum class Proteases { Trypsin, Pepsin, Chymotrypsin, GluC };
+
+std::string ReverseNGlycopeptide(const std::string& sequence)
+{
+    // reverse but last
+    std::string seq = sequence;
+    std::reverse(seq.begin(), seq.end()-1);
+
+    // Asn–X–T
+    int pos = ProteinPTM::FindNGlycanSite(sequence).front();
+    std::swap(seq[seq.length()-2-pos], seq[seq.length()-4-pos]);
+    
+    return seq;
+}
 
 class Digestion
 {

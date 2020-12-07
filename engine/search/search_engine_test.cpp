@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
 
 
     // spectrum matching
-    int special_scan = 12224;
+    int special_scan = 11966;
     double ms1_tol = 10;
     model::spectrum::ToleranceBy ms1_by = model::spectrum::ToleranceBy::PPM;
     std::unique_ptr<algorithm::search::ISearch<std::string>> searcher =

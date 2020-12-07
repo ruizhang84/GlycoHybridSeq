@@ -248,14 +248,18 @@ int main(int argc, char *argv[])
     }
     else
     {
-        for(auto& p: proteins)
+        for(const auto& s : peptides)
         {
-            std::string seq = p.Sequence();
-            std::reverse(seq.begin(), seq.end());
-            p.set_sequence(seq);
+            decoy_peptides.push_back(engine::protein::ReverseNGlycopeptide(s));
         }
-        std::unordered_set<std::string> decoy_seqs = PeptidesDigestion(proteins, parameter);
-        decoy_peptides.insert(decoy_peptides.end(), decoy_seqs.begin(), decoy_seqs.end());
+        // for(auto& p: proteins)
+        // {
+        //     std::string seq = p.Sequence();
+        //     std::reverse(seq.begin(), seq.end());
+        //     p.set_sequence(seq);
+        // }
+        // std::unordered_set<std::string> decoy_seqs = PeptidesDigestion(proteins, parameter);
+        // decoy_peptides.insert(decoy_peptides.end(), decoy_seqs.begin(), decoy_seqs.end());
     }
    
     // // build glycans
@@ -269,19 +273,19 @@ int main(int argc, char *argv[])
     std::cout << "Start to scan\n"; 
     auto start = std::chrono::high_resolution_clock::now();
 
-    engine::spectrum::LSHClustering cluster(model::spectrum::ToleranceBy::Dalton, 0.01);
-    std::vector<engine::spectrum::EmbededSpectrum> embeds = cluster.Embed(spectrum_reader.GetSpectrum());
-    std::unordered_map<int, std::vector<engine::spectrum::EmbededSpectrum>> hash_table =  cluster.Hashing(embeds);
-    std::vector<model::spectrum::Spectrum> spectra = cluster.filter(hash_table);
+    // engine::spectrum::LSHClustering cluster(model::spectrum::ToleranceBy::Dalton, 0.01);
+    // std::vector<engine::spectrum::EmbededSpectrum> embeds = cluster.Embed(spectrum_reader.GetSpectrum());
+    // std::unordered_map<int, std::vector<engine::spectrum::EmbededSpectrum>> hash_table =  cluster.Hashing(embeds);
+    // std::vector<model::spectrum::Spectrum> spectra = cluster.filter(hash_table);
 
-    std::cout << spectra.size() << std::endl;
+    // std::cout << spectra.size() << std::endl;
 
     // seraching targets 
-    SearchDispatcher target_searcher(spectra, builder.get(), peptides, parameter);
+    SearchDispatcher target_searcher(spectrum_reader.GetSpectrum(), builder.get(), peptides, parameter);
     std::vector<engine::analysis::SearchResult> targets = target_searcher.Dispatch();
 
     // seraching decoys
-    SearchDispatcher decoy_searcher(spectra, builder.get(), decoy_peptides, parameter);
+    SearchDispatcher decoy_searcher(spectrum_reader.GetSpectrum(), builder.get(), decoy_peptides, parameter);
     std::vector<engine::analysis::SearchResult> decoys = decoy_searcher.Dispatch();
 
     std::cout << "Total target:" << targets.size() <<" decoy:" << decoys.size() << std::endl;

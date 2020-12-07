@@ -8,7 +8,7 @@
 #include "search_parameter.h"
 #include "../algorithm/search/bucket_search.h"
 #include "../engine/glycan/glycan_builder.h"
-#include "../engine/analysis/search_result.h"
+#include "../engine/analysis/search_analyzer.h"
 #include "../engine/search/precursor_match.h"
 #include "../engine/search/search_glycan.h"
 #include "../engine/search/search_sequence.h"

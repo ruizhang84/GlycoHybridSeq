@@ -10,8 +10,7 @@
 #include "../util/io/fasta_reader.h"
 #include "../engine/protein/protein_digest.h"
 #include "../engine/protein/protein_ptm.h"
-#include "../engine/analysis/search_result.h"
-#include "../engine/analysis/search_result.h"
+#include "../engine/analysis/search_analyzer.h"
 
 
 // generate peptides by digestion
