@@ -136,9 +136,9 @@ protected:
                 for(const auto& gt : it.second)
                 {
                     std::string glycan_id = gt.first;
-                    std::vector<int> peak_indexes(gt.second.begin(), gt.second.end());
-
                     model::glycan::Glycan* glycan = glycans_map_.find(glycan_id)->second.get();
+
+                    std::vector<int> peak_indexes(gt.second.begin(), gt.second.end());
                     for(const auto& g : glycan->Children())
                     {
                         double mass = g->Mass() + util::mass::PeptideMass::Compute(peptide);
@@ -225,7 +225,7 @@ protected:
     std::unique_ptr<algorithm::search::ISearch<int>> searcher_;
     const std::unordered_map<std::string, std::unique_ptr<model::glycan::Glycan>>& glycans_map_;
     const std::string kY1 = "1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ";
-    const int kMissing = 5;
+    const int kMissing = 4;
     std::unordered_map<std::string, double> peptide_mass_;
 };
 

@@ -1,5 +1,5 @@
-#ifndef ENGINE_GLYCAN_GLYCAN_BUILDER_H
-#define ENGINE_GLYCAN_GLYCAN_BUILDER_H
+#ifndef ENGINE_GLYCAN_GLYCAN_BUILDER_H_
+#define ENGINE_GLYCAN_GLYCAN_BUILDER_H_
 
 #include <deque>
 #include <memory>

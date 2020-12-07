@@ -5,8 +5,10 @@ CPPFLAGS =-g -Wall -std=c++14 -O3
 INCLUDES = -I/usr/local/include -L/usr/local/lib -lboost_unit_test_framework -static -lpthread
 LIB = -I/usr/local/include -L/usr/local/lib -lpthread
 
-TEST_CASES := binpacking_test search_test io_test glycan_builder_test glycan_test protein_test 
+TEST_CASES := binpacking_test search_test io_test glycan_builder_test glycan_test protein_test  
 TEST_CASES_2 := precursor_match_test search_sequence_test search_glycan_test search_engine_test multi_comparison_test
+TEST_CASES_3 := lsh_clustering_test
+
 
 search:
 	$(CC) $(CPPFLAGS) -o searching \
@@ -56,8 +58,12 @@ multi_comparison_test:
 	$(CC) $(CPPFLAGS) -o test/multi_comparison_test \
 	engine/analysis/multi_comparison_test.cpp $(INCLUDES)
 
+lsh_clustering_test:
+	$(CC) $(CPPFLAGS) -o test/lsh_clustering_test \
+	engine/spectrum/lsh_clustering_test.cpp $(INCLUDES)
+
 # test
-test: ${TEST_CASES} ${TEST_CASES_2}
+test: ${TEST_CASES} ${TEST_CASES_2} ${TEST_CASES_3}
 
 # clean up
 clean:

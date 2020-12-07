@@ -20,7 +20,8 @@
 #include "../engine/search/precursor_match.h"
 #include "../engine/analysis/multi_comparison.h"
 #include "../engine/analysis/fdr_filter.h"
-
+#include "../engine/analysis/score_elution.h"
+#include "../engine/spectrum/lsh_clustering.h"
 
 const char *argp_program_version =
   "GlycoCrushseq v1.0";
@@ -268,12 +269,19 @@ int main(int argc, char *argv[])
     std::cout << "Start to scan\n"; 
     auto start = std::chrono::high_resolution_clock::now();
 
+    engine::spectrum::LSHClustering cluster(model::spectrum::ToleranceBy::Dalton, 0.01);
+    std::vector<engine::spectrum::EmbededSpectrum> embeds = cluster.Embed(spectrum_reader.GetSpectrum());
+    std::unordered_map<int, std::vector<engine::spectrum::EmbededSpectrum>> hash_table =  cluster.Hashing(embeds);
+    std::vector<model::spectrum::Spectrum> spectra = cluster.filter(hash_table);
+
+    std::cout << spectra.size() << std::endl;
+
     // seraching targets 
-    SearchDispatcher target_searcher(spectrum_reader.GetSpectrum(), builder.get(), peptides, parameter);
+    SearchDispatcher target_searcher(spectra, builder.get(), peptides, parameter);
     std::vector<engine::analysis::SearchResult> targets = target_searcher.Dispatch();
 
     // seraching decoys
-    SearchDispatcher decoy_searcher(spectrum_reader.GetSpectrum(), builder.get(), decoy_peptides, parameter);
+    SearchDispatcher decoy_searcher(spectra, builder.get(), decoy_peptides, parameter);
     std::vector<engine::analysis::SearchResult> decoys = decoy_searcher.Dispatch();
 
     std::cout << "Total target:" << targets.size() <<" decoy:" << decoys.size() << std::endl;
@@ -289,6 +297,7 @@ int main(int argc, char *argv[])
 
     // output analysis results
     ReportResults(out_path, ConvertComposition(results, builder->GlycanMapsRef()));
+    // ReportResults(out_path, results);
 
     auto stop = std::chrono::high_resolution_clock::now(); 
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start); 

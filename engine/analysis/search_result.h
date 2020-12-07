@@ -23,12 +23,14 @@ public:
     SearchResult() = default;
 
     int Scan() const { return scan_; }
+    double Retention() const { return retention_; }
     int ModifySite() const { return pos_; }
     std::string Sequence() const { return peptide_; }
     std::string Glycan() const { return glycan_; }
     double Score() const { return score_; }
 
     void set_scan(int scan) { scan_ = scan; }
+    void set_retention(double retention) { retention_ = retention; }
     void set_site(int pos) { pos_ = pos; }
     void set_peptide(std::string seq) { peptide_ = seq; }
     void set_glycan(std::string glycan) { glycan_ = glycan; }
@@ -36,6 +38,7 @@ public:
 
 protected:
     int scan_;
+    double retention_;
     std::string peptide_;
     std::string glycan_;
     int pos_;
@@ -120,34 +123,34 @@ public:
         const std::unordered_set<int>& peptides_index, 
         const std::unordered_set<int>& glycans_index) const
     {
-        double value = 0;
-        double sum = 0;
-        std::vector<int> peak_index;
-        peak_index.insert(peak_index.end(), peptides_index.begin(), peptides_index.end());
-        peak_index.insert(peak_index.end(), glycans_index.begin(), glycans_index.end());
+        // double value = 0;
+        // double sum = 0;
+        // std::vector<int> peak_index;
+        // peak_index.insert(peak_index.end(), peptides_index.begin(), peptides_index.end());
+        // peak_index.insert(peak_index.end(), glycans_index.begin(), glycans_index.end());
 
-        // double score = 0;
-        // for(int index : peptides_index)
-        // {
-        //     score += log(peaks[index].Intensity());
-        // }
-        // for(int index : glycans_index)
-        // {
-        //     score += log(peaks[index].Intensity());
-        // }
-        // return score;
-
-        for(const auto& it : peak_index)
+        double score = 0;
+        for(int index : peptides_index)
         {
-            value += log(peaks[it].Intensity());
+            score += log(peaks[index].Intensity());
         }
-
-        for(const auto& it : peaks)
+        for(int index : glycans_index)
         {
-            sum += it.Intensity();
+            score += log(peaks[index].Intensity());
         }
+        return score;
 
-        return value / log(sum);
+        // for(const auto& it : peak_index)
+        // {
+        //     value += log(peaks[it].Intensity());
+        // }
+
+        // for(const auto& it : peaks)
+        // {
+        //     sum += log(it.Intensity());
+        // }
+
+        // return  sqrt(value / sum);
     }
 
 };

@@ -7,8 +7,21 @@ namespace spectrum {
 class Peak
 {
 public:
+    Peak() = default;
     Peak(double mz, double intensity):
         mz_(mz), intensity_(intensity){}
+
+    Peak(const Peak& other)
+    {
+        mz_ = other.mz_;
+        intensity_ = other.intensity_;
+    }
+    Peak& operator=(const Peak& other)
+    {
+        mz_ = other.mz_;
+        intensity_ = other.intensity_;
+        return *this;
+    }
 
     double MZ() const { return mz_; }
     void set_mz(double mz) { mz_ = mz; }

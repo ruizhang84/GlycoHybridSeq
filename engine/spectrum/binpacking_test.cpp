@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE BinPackingTest
 #include <boost/test/unit_test.hpp>
 #include <iostream>
-
+#include "../../model/spectrum/spectrum.h"
 #include "binpacking.h"
 
 namespace engine {
@@ -25,14 +25,12 @@ BOOST_AUTO_TEST_CASE( read_training_data )
 
     model::spectrum::Spectrum spec;
     spec.set_peaks(peaks);
-    BinPacking packer(model::spectrum::ToleranceBy::PPM, 2, 0.000001, 20);
-    std::vector<double> bins = packer.Packing(spec);
-    for(int i = 0; i < (int) bins.size(); i++)
+    BinPacking packer(model::spectrum::ToleranceBy::Dalton, 2, 0.1, 20);
+    std::unordered_map<int, model::spectrum::Peak> bins = packer.Packing(spec);
+    for(const auto& it : bins)
     {
-        if (bins[i] > 0)
-        {
-            std::cout << i << ": " << bins[i] << std::endl;
-        }
+        std::cout << it.first << ": " << it.second.MZ() << ", " << it.second.Intensity() << std::endl;
+
     }
 
 }
