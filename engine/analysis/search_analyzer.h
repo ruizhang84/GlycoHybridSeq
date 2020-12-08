@@ -89,6 +89,7 @@ public:
                 }
             }
         }
+ 
         return results;
     }
 
@@ -96,34 +97,28 @@ public:
         const std::unordered_set<int>& peptides_index, 
         const std::unordered_set<int>& glycans_index) const
     {
-        // double value = 0;
-        // double sum = 0;
-        // std::vector<int> peak_index;
-        // peak_index.insert(peak_index.end(), peptides_index.begin(), peptides_index.end());
-        // peak_index.insert(peak_index.end(), glycans_index.begin(), glycans_index.end());
+        double sum = 0;
+        std::vector<int> peak_index;
+        peak_index.insert(peak_index.end(), peptides_index.begin(), peptides_index.end());
+        peak_index.insert(peak_index.end(), glycans_index.begin(), glycans_index.end());
 
-        double score = 0;
+        double peptide_score = 0;
+        double glycan_score = 0;
         for(int index : peptides_index)
         {
-            score += log(peaks[index].Intensity() / ((int)peptides_index.size())) ;
+            peptide_score += log(peaks[index].Intensity()) ;
         }
         for(int index : glycans_index)
         {
-            score += log(peaks[index].Intensity() / ((int)glycans_index.size())) ;
+            glycan_score += log(peaks[index].Intensity()) ;
         }
-        return score;
 
-        // for(const auto& it : peak_index)
-        // {
-        //     value += log(peaks[it].Intensity());
-        // }
+        for(const auto& it : peaks)
+        {
+            sum += log(it.Intensity());
+        }
 
-        // for(const auto& it : peaks)
-        // {
-        //     sum += log(it.Intensity());
-        // }
-
-        // return  sqrt(value / sum);
+        return sqrt(peptide_score * glycan_score) / sum;
     }
 
 };

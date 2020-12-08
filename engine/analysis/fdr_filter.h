@@ -58,6 +58,7 @@ public:
             }
             // compute fdr rate
             double rate = (decoy_size - j) * 1.0 / (target_size + decoy_size - i - j + 1);
+            rate = rate * (1.0 + target_size * 1.0/decoy_size);
             if (rate <= fdr_)
             {
                 cutoff_ = score;

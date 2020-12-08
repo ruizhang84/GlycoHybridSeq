@@ -248,18 +248,18 @@ int main(int argc, char *argv[])
     }
     else
     {
-        for(const auto& s : peptides)
-        {
-            decoy_peptides.push_back(engine::protein::ReverseNGlycopeptide(s));
-        }
-        // for(auto& p: proteins)
+        // for(const auto& s : peptides)
         // {
-        //     std::string seq = p.Sequence();
-        //     std::reverse(seq.begin(), seq.end());
-        //     p.set_sequence(seq);
+        //     decoy_peptides.push_back(engine::protein::ReverseNGlycopeptide(s));
         // }
-        // std::unordered_set<std::string> decoy_seqs = PeptidesDigestion(proteins, parameter);
-        // decoy_peptides.insert(decoy_peptides.end(), decoy_seqs.begin(), decoy_seqs.end());
+        for(auto& p: proteins)
+        {
+            std::string seq = p.Sequence();
+            std::reverse(seq.begin(), seq.end());
+            p.set_sequence(seq);
+        }
+        std::unordered_set<std::string> decoy_seqs = PeptidesDigestion(proteins, parameter);
+        decoy_peptides.insert(decoy_peptides.end(), decoy_seqs.begin(), decoy_seqs.end());
     }
    
     // // build glycans
