@@ -19,8 +19,10 @@ class GlycanBuilder
 {
 
 public:
-    GlycanBuilder(int hexNAc, int hex, int fuc, int neuAc, int neuGc):
-        hexNAc_(hexNAc), hex_(hex), fuc_(fuc), neuAc_(neuAc), neuGc_(neuGc),
+    GlycanBuilder(int hexNAc, int hex, int fuc, int neuAc, int neuGc,
+        bool complex=true, bool hybrid=false, bool highmannose=false):
+        hexNAc_(hexNAc), hex_(hex), fuc_(fuc), neuAc_(neuAc), neuGc_(neuGc), complex_(complex), 
+                    hybrid_(hybrid), highmannose_(highmannose),
             candidates_({Monosaccharide::GlcNAc, Monosaccharide::Man, Monosaccharide::Gal,
                 Monosaccharide::Fuc, Monosaccharide::NeuAc}){}
     virtual ~GlycanBuilder(){};
@@ -100,22 +102,31 @@ public:
 protected:
     void InitQueue(std::deque<Glycan*>& queue)
     {
-        std::unique_ptr<NGlycanComplex> root = 
-            std::make_unique<NGlycanComplex>();
+        std::string root_id = "";
+        if (complex_)
+        {
+            std::unique_ptr<NGlycanComplex> root = 
+                std::make_unique<NGlycanComplex>();
+            root_id = root->ID();
+            glycans_map_[root_id] = std::move(root);
+            queue.push_back(glycans_map_[root_id].get());
+        }
 
-        std::string root_id = root->ID();
-        glycans_map_[root_id] = std::move(root);
-        queue.push_back(glycans_map_[root_id].get());
+        if (hybrid_)
+        {
+            std::unique_ptr<NGlycanHybrid> root2 = std::make_unique<NGlycanHybrid>();
+            root_id = root2->ID();
+            glycans_map_[root_id] = std::move(root2);
+            queue.push_back(glycans_map_[root_id].get());
+        }
 
-        std::unique_ptr<NGlycanHybrid> root2 = std::make_unique<NGlycanHybrid>();
-        root_id = root2->ID();
-        glycans_map_[root_id] = std::move(root2);
-        queue.push_back(glycans_map_[root_id].get());
-
-        std::unique_ptr<HighMannose> root3 = std::make_unique<HighMannose>();
-        root_id = root3->ID();
-        glycans_map_[root_id] = std::move(root3);
-        queue.push_back(glycans_map_[root_id].get());
+        if (highmannose_)
+        {
+            std::unique_ptr<HighMannose> root3 = std::make_unique<HighMannose>();
+            root_id = root3->ID();
+            glycans_map_[root_id] = std::move(root3);
+            queue.push_back(glycans_map_[root_id].get());
+        }
     }
 
     bool SatisfyCriteria(const Glycan* glycan) const
@@ -156,9 +167,13 @@ protected:
     int fuc_;
     int neuAc_;
     int neuGc_;
+    bool complex_;
+    bool hybrid_;
+    bool highmannose_;
     std::unordered_map<double, std::vector<std::string>> glycans_; // glycan mass, glycan id
     std::unordered_map<std::string, std::unique_ptr<Glycan>> glycans_map_; // glycan id -> glycan
     std::vector<Monosaccharide> candidates_;
+
 
 };
 

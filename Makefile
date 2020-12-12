@@ -14,6 +14,10 @@ search:
 	$(CC) $(CPPFLAGS) -o searching \
 	apps/searching.cpp model/glycan/nglycan_complex.cpp model/glycan/nglycan_hybrid.cpp $(LIB)
 
+search_windows:
+	$(CC) $(CPPFLAGS) -o searching_windows \
+	apps/searching_windows.cpp model/glycan/nglycan_complex.cpp model/glycan/nglycan_hybrid.cpp $(LIB)
+
 binpacking_test:
 	$(CC) $(CPPFLAGS) -o test/binpacking_test \
 	 engine/spectrum/binpacking_test.cpp $(INCLUDES)

@@ -12,6 +12,7 @@
 #include <cmath> 
 #include <memory>
 #include <algorithm>
+#include <climits>
 
 #include "../../util/mass/glycan.h"
 #include "../../util/mass/peptide.h"

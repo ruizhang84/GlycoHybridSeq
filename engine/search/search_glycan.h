@@ -27,8 +27,10 @@ class GlycanSearch
 {
 public:
     GlycanSearch(std::unique_ptr<algorithm::search::ISearch<int>> searcher,
-        const std::unordered_map<std::string, std::unique_ptr<model::glycan::Glycan>>& glycans_map):
-        searcher_(std::move(searcher)), glycans_map_(glycans_map){}
+        const std::unordered_map<std::string, std::unique_ptr<model::glycan::Glycan>>& glycans_map,
+        bool complex=true, bool hybrid=false, bool highmannose=false):
+        searcher_(std::move(searcher)), glycans_map_(glycans_map), complex_(complex), 
+        hybrid_(hybrid), highmannose_(highmannose){}
 
     // peptide seq, glycan*
     std::unordered_map<std::string, std::unordered_set<int>> Search(
@@ -195,9 +197,12 @@ protected:
                 // set mass
                 node->set_mass(mass);
                 // set matches
-                node->Add(it.first, kY1, std::vector<int>());
-                node->Add(it.first, kY1_mannose, std::vector<int>());
-                node->Add(it.first, kY1_hybrid, std::vector<int>());
+                if (complex_)
+                    node->Add(it.first, kY1, std::vector<int>());
+                if (hybrid_)
+                    node->Add(it.first, kY1_mannose, std::vector<int>());
+                if (highmannose_)
+                    node->Add(it.first, kY1_hybrid, std::vector<int>());
                 // add node 
                 peak_nodes_map[mass] = std::move(node);
                 // enqueue
@@ -206,7 +211,12 @@ protected:
             else
             {
                 // update glycopeptide match
-                peak_nodes_map[mass]->Add(it.first, kY1, std::vector<int>());
+                if (complex_)
+                    peak_nodes_map[mass]->Add(it.first, kY1, std::vector<int>());
+                if (hybrid_)
+                    peak_nodes_map[mass]->Add(it.first, kY1_mannose, std::vector<int>());
+                if (highmannose_)
+                    peak_nodes_map[mass]->Add(it.first, kY1_hybrid, std::vector<int>());
             }
         }
     }
@@ -231,6 +241,9 @@ protected:
 
     std::unique_ptr<algorithm::search::ISearch<int>> searcher_;
     const std::unordered_map<std::string, std::unique_ptr<model::glycan::Glycan>>& glycans_map_;
+    bool complex_;
+    bool hybrid_;
+    bool highmannose_;
     const std::string kY1 = "1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ";
     const std::string kY1_hybrid = "1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ";
     const std::string kY1_mannose = "1 0 0 0 0 0 ";

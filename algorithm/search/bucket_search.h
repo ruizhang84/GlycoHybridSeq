@@ -4,6 +4,7 @@
 #include <algorithm> 
 #include <iostream>
 #include <cmath>
+#include <climits>
 #include "point.h"
 #include "../../model/spectrum/spectrum.h"
 #include "search.h"

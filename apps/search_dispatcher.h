@@ -102,7 +102,8 @@ protected:
         precursor_runner.Init(peptides_, builder_->GlycanMapsRef());
 
         engine::search::SequenceSearch spectrum_sequencer(std::move(more_searcher));
-        engine::search::GlycanSearch spectrum_searcher(std::move(extra_searcher), builder_->GlycanMapsRef());
+        engine::search::GlycanSearch spectrum_searcher(std::move(extra_searcher), builder_->GlycanMapsRef(),
+            parameter_.complex, parameter_.hybrid, parameter_.highmannose);
 
         std::vector<engine::analysis::SearchResult> temp_result;
         engine::analysis::SearchAnalyzer analyzer;

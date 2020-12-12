@@ -32,6 +32,10 @@ struct SearchParameter
         engine::protein::Proteases::GluC
     };
     int miss_cleavage = 2;
+    // glycan type
+    bool complex = true;
+    bool hybrid = false;
+    bool highmannose = false;
 
 };
 

@@ -108,7 +108,7 @@ public:
             {
                 if (!IsHybrid(g.first))
                     continue;
-                std::string mannose = g.first.substr(8, 10);
+                std::string mannose = g.first.substr(8, 4);
                 if (mannose_part.find(mannose) == mannose_part.end())
                 {
                     mannose_part[mannose] = std::vector<std::string>();

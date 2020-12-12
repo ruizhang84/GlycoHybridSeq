@@ -34,10 +34,10 @@ static char doc[] =
 static struct argp_option options[] = {
     {"spath", 'i',    "spectrum.mgf",  0,  "mgf, Spectrum MS/MS Input Path" },
     {"fpath", 'f',    "protein.fasta",  0,  "fasta, Protein Sequence Input Path" },
-    {"gpath", 'g',    "reversed",  0,  "fasta, Protein Sequence for Decoy" },
+    {"dpath", 'd',    "reversed",  0,  "fasta, Protein Sequence for Decoy" },
     {"output",    'o',    "result.csv",   0,  "csv, Results Output Path" },
     {"pthread",   'p',  "6",  0,  "Number of Searching Threads" },
-    {"digestion",   'd',  "TG",  0,  "The Digestion, Trypsin (T), Pepsin (P), Chymotrypsin (C), GluC (G)" }, 
+    {"enzyme",   'e',  "TG",  0,  "The Digestion Enzyme, Trypsin (T), Pepsin (P), Chymotrypsin (C), GluC (G)" }, 
     {"miss_cleavage",   's',  "2",  0,  "The Missing Cleavage Upto" },    
     {"HexNAc",   'x',  "12",  0,  "Search Up to Number of HexNAc" },
     {"HexNA",   'y',  "12",  0,  "Search Up to Number of Hex" },
@@ -49,17 +49,16 @@ static struct argp_option options[] = {
     {"ms1_by",   'k',  "0",  0, "MS Tolereance By Int: PPM (0) or Dalton (1)" },
     {"ms2_by",   'l',  "1",  0, "MS2 Tolereance By Int: PPM (0) or Dalton (1)" },
     {"fdr_rate",   'r',  "0.01",  0, "FDR rate" },
+    {"glycan_type",   'g',  "CHM",  0, "The Searching Glycan Type, Complex (C), Hybrid (H), High Mannose(M)"},
     { 0 }
 };
 
-static std::string default_spectra_path = 
-        "/home/ruiz/Documents/GlycoCrushSeq/data/ZC_20171218_C22_R1.mgf";
-static std::string default_fasta_path = 
-        "/home/ruiz/Documents/GlycoCrushSeq/data/haptoglobin.fasta";
-static std::string default_decoy_path = 
-        "/home/ruiz/Documents/GlycoCrushSeq/data/titin.fasta";
+static std::string default_spectra_path = "ZC_20171218_C22_R1.mgf";
+static std::string default_fasta_path = "haptoglobin.fasta";
+static std::string default_decoy_path = "titin.fasta";
 static std::string default_out_path = "result.csv";
 static std::string default_digestion = "TG";
+static std::string default_glycan_type = "CHM";
 
 struct arguments
 {
@@ -86,6 +85,8 @@ struct arguments
     int ms2_by = 1;
     // fdr
     double fdr_rate = 0.01;
+    // glycan type
+    char * glycan_type = const_cast<char*> (default_glycan_type.c_str());
 };
 
 
@@ -98,6 +99,11 @@ parse_opt (int key, char *arg, struct argp_state *state)
     switch (key)
     {
     case 'd':
+        arguments->decoy_set = true;
+        arguments->decoy_path = arg;
+        break;
+
+    case 'e':
         arguments->digestion = arg;
         break;
 
@@ -106,8 +112,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
         break;
 
     case 'g':
-        arguments->decoy_set = true;
-        arguments->decoy_path = arg;
+        arguments->glycan_type = arg;
         break;
 
     case 'i':
@@ -217,6 +222,28 @@ SearchParameter GetParameter(const struct arguments& arguments)
             break;
         }
     }
+    std::string glycan_type(arguments.glycan_type);
+    for(const char& c : glycan_type)
+    {
+        switch (c)
+        {
+        case 'C': case 'c':
+            parameter.complex = true;
+            break;
+
+        case 'H': case 'h':
+            parameter.hybrid = true;
+            break;
+
+        case 'M': case 'm':
+            parameter.highmannose = true;
+            break;
+
+        default:
+            break;
+        }
+    }
+
     return parameter;
 }
 
@@ -266,7 +293,8 @@ int main(int argc, char *argv[])
     std::unique_ptr<engine::glycan::GlycanBuilder> builder =
         std::make_unique<engine::glycan::GlycanBuilder>(parameter.hexNAc_upper_bound, 
             parameter.hex_upper_bound, parameter.fuc_upper_bound, 
-                parameter.neuAc_upper_bound, parameter.neuGc_upper_bound);
+                parameter.neuAc_upper_bound, parameter.neuGc_upper_bound,
+                    parameter.complex, parameter.hybrid, parameter.highmannose);
     builder->Build();
 
     // search
