@@ -18,6 +18,9 @@ namespace glycan {
 enum class Monosaccharide
 { GlcNAc, Man, Gal, Fuc, NeuAc, NeuGc};
 
+enum class GlycanType
+{ NHighMannose, NHybrid, NComplex, None };
+
 class Glycan
 {
 public:
@@ -25,7 +28,7 @@ public:
     virtual ~Glycan(){}
 
     //type
-    virtual std::string Type() { return ""; }
+    virtual GlycanType Type() { return GlycanType::None; }
 
     // Mass
     double Mass() { return mass_; }

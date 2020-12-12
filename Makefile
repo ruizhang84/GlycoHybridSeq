@@ -12,7 +12,7 @@ TEST_CASES_3 := lsh_clustering_test
 
 search:
 	$(CC) $(CPPFLAGS) -o searching \
-	apps/searching.cpp model/glycan/nglycan_complex.cpp $(LIB)
+	apps/searching.cpp model/glycan/nglycan_complex.cpp model/glycan/nglycan_hybrid.cpp $(LIB)
 
 binpacking_test:
 	$(CC) $(CPPFLAGS) -o test/binpacking_test \

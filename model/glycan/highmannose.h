@@ -21,7 +21,7 @@ public:
     }
     ~HighMannose(){}
 
-    std::string Type() { return "High Mannose"; }
+    GlycanType Type() { return GlycanType::NHighMannose; }
 
     std::vector<std::unique_ptr<Glycan>> Grow(Monosaccharide suger) override
     {

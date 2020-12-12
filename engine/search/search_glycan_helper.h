@@ -1,7 +1,6 @@
 #ifndef ENGINE_SEARCH_GLYCAN_HELPER_H_
 #define ENGINE_SEARCH_GLYCAN_HELPER_H_
 
-#include <string>
 #include <memory>
 #include <numeric>
 #include <unordered_map>
@@ -9,6 +8,9 @@
 
 #include "../../algorithm/search/search.h"
 #include "../../model/glycan/glycan.h"
+#include "../../model/glycan/nglycan_complex.h"
+#include "../../model/glycan/nglycan_hybrid.h"
+#include "../../model/glycan/highmannose.h"
 #include "../../model/spectrum/spectrum.h"
 #include "../../util/mass/ion.h"
 #include "../../util/mass/spectrum.h"
@@ -59,8 +61,16 @@ public:
             }
         }
     }
-    
-    void Max(std::vector<model::spectrum::Peak> peaks)
+
+    bool static IsComplex(const std::string& glycan_id)
+        { return (int) glycan_id.size() == 48; }
+    bool static IsHybrid(const std::string& glycan_id)
+        { return (int) glycan_id.size() == 32; }
+    bool static IsHighMannose(const std::string& glycan_id)
+        { return (int) glycan_id.size() == 12; }
+
+    PeakMatch MaxBy(std::vector<model::spectrum::Peak> peaks, 
+        std::function<bool(const std::string&)> glycanFilter)
     {
         PeakMatch best;
         for(const auto& it : matches_)
@@ -69,6 +79,8 @@ public:
             double best_score = 0;
             for(const auto& g: it.second)
             {
+                if (!glycanFilter(g.first)) 
+                    continue;
                 double score = SearchHelper::ComputePeakScore(peaks, g.second);
                 if (best_score < score)
                 {
@@ -82,6 +94,80 @@ public:
                 }
             }
         }
+        return best;
+    }
+
+    PeakMatch MaxByHybrid(std::vector<model::spectrum::Peak> peaks)
+    {
+        PeakMatch best;
+        for(const auto& it : matches_)
+        {
+            best[it.first] = std::unordered_map<std::string, std::unordered_set<int>>();
+            std::unordered_map<std::string, std::vector<std::string>> mannose_part; // mannose -> id
+            for(const auto& g: it.second)
+            {
+                if (!IsHybrid(g.first))
+                    continue;
+                std::string mannose = g.first.substr(8, 10);
+                if (mannose_part.find(mannose) == mannose_part.end())
+                {
+                    mannose_part[mannose] = std::vector<std::string>();
+                }
+                mannose_part[mannose].push_back(g.first);
+            }
+
+            // tricky to avoid cross max on mannose part
+            for(const auto& m: mannose_part)
+            {
+                std::unordered_map<std::string, std::unordered_set<int>> sub_best;
+                double best_score = 0;
+                for(const auto& g_id: m.second)
+                {
+                    double score = SearchHelper::ComputePeakScore(peaks, it.second.find(g_id)->second);
+                    if (best_score < score)
+                    {
+                        best_score = score;
+                        sub_best.clear();
+                        sub_best[g_id] = it.second.find(g_id)->second;
+                    }
+                    else if (best_score == score)
+                    {
+                        sub_best[g_id] = it.second.find(g_id)->second;
+                    }
+                }
+                for(const auto& g : sub_best)
+                {
+                    best[it.first][g.first] = g.second;
+                }
+            }
+        }
+        return best;
+    }
+
+
+    void Merge(PeakMatch& to, const PeakMatch& from)
+    {
+        for(const auto& it : from)
+        {
+            if(to.find(it.first) == to.end())
+            {
+                to[it.first] =
+                    std::unordered_map<std::string, std::unordered_set<int>>();
+            }
+            
+            for(const auto& g: it.second)
+            {
+                to[it.first][g.first] = g.second;
+            }
+        }
+    }
+
+    void Max(std::vector<model::spectrum::Peak> peaks)
+    {
+        PeakMatch best;
+        Merge(best, MaxBy(peaks, IsComplex));
+        Merge(best, MaxBy(peaks, IsHighMannose));
+        Merge(best, MaxByHybrid(peaks));
         matches_ = best;
     }
 
@@ -90,6 +176,7 @@ protected:
     int miss_ = 1;
     double mass_ = 0;
     PeakMatch matches_;
+
 };
 
 struct PeakNodeComparison

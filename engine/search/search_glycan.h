@@ -10,6 +10,9 @@
 
 #include "../../algorithm/search/search.h"
 #include "../../model/glycan/glycan.h"
+#include "../../model/glycan/nglycan_complex.h"
+#include "../../model/glycan/nglycan_hybrid.h"
+#include "../../model/glycan/highmannose.h"
 #include "../../model/spectrum/spectrum.h"
 #include "../../util/mass/ion.h"
 #include "../../util/mass/spectrum.h"
@@ -193,6 +196,8 @@ protected:
                 node->set_mass(mass);
                 // set matches
                 node->Add(it.first, kY1, std::vector<int>());
+                node->Add(it.first, kY1_mannose, std::vector<int>());
+                node->Add(it.first, kY1_hybrid, std::vector<int>());
                 // add node 
                 peak_nodes_map[mass] = std::move(node);
                 // enqueue
@@ -227,6 +232,8 @@ protected:
     std::unique_ptr<algorithm::search::ISearch<int>> searcher_;
     const std::unordered_map<std::string, std::unique_ptr<model::glycan::Glycan>>& glycans_map_;
     const std::string kY1 = "1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ";
+    const std::string kY1_hybrid = "1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ";
+    const std::string kY1_mannose = "1 0 0 0 0 0 ";
     const int kMissing = 4;
     std::unordered_map<std::string, double> peptide_mass_;
 };

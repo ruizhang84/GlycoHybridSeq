@@ -27,7 +27,7 @@ public:
     }
     ~NGlycanHybrid(){}
 
-    std::string Type() override { return "Hybrid"; }
+    GlycanType Type() override { return GlycanType::NHybrid; }
     
     std::vector<std::unique_ptr<Glycan>> Grow(Monosaccharide suger) override;
 

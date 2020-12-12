@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <unordered_set>
 #include "../../model/glycan/nglycan_complex.h"
+#include "../../model/glycan/nglycan_hybrid.h"
+#include "../../model/glycan/highmannose.h"
 #include "../../util/mass/glycan.h"
 
 namespace engine{
@@ -47,14 +49,8 @@ public:
 
     virtual void Build()
     {
-        std::unique_ptr<NGlycanComplex> root = 
-            std::make_unique<NGlycanComplex>();
-
-        std::string root_id = root->ID();
-        glycans_map_[root_id] = std::move(root);
-    
         std::deque<Glycan*> queue;
-        queue.push_back(glycans_map_[root_id].get());
+        InitQueue(queue);
 
         while (!queue.empty())
         {
@@ -102,6 +98,26 @@ public:
     }
 
 protected:
+    void InitQueue(std::deque<Glycan*>& queue)
+    {
+        std::unique_ptr<NGlycanComplex> root = 
+            std::make_unique<NGlycanComplex>();
+
+        std::string root_id = root->ID();
+        glycans_map_[root_id] = std::move(root);
+        queue.push_back(glycans_map_[root_id].get());
+
+        std::unique_ptr<NGlycanHybrid> root2 = std::make_unique<NGlycanHybrid>();
+        root_id = root2->ID();
+        glycans_map_[root_id] = std::move(root2);
+        queue.push_back(glycans_map_[root_id].get());
+
+        std::unique_ptr<HighMannose> root3 = std::make_unique<HighMannose>();
+        root_id = root3->ID();
+        glycans_map_[root_id] = std::move(root3);
+        queue.push_back(glycans_map_[root_id].get());
+    }
+
     bool SatisfyCriteria(const Glycan* glycan) const
     {
         int hexNAc = 0, hex = 0, fuc = 0, neuAc = 0, neuGc = 0;

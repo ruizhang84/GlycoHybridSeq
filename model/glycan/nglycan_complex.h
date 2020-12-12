@@ -1,5 +1,5 @@
-#ifndef MODEL_GLYCAN_NGLYCAN_COMPLEX_H
-#define MODEL_GLYCAN_NGLYCAN_COMPLEX_H
+#ifndef MODEL_GLYCAN_NGLYCAN_COMPLEX_H_
+#define MODEL_GLYCAN_NGLYCAN_COMPLEX_H_
 // The complex type of n-glycan
 
 #include <sstream>
@@ -25,7 +25,7 @@ public:
     }
     ~NGlycanComplex(){}
 
-    std::string Type() override { return "Complex"; }
+    GlycanType Type() override { return GlycanType::NComplex; }
     
     std::vector<std::unique_ptr<Glycan>> Grow(Monosaccharide suger) override;
 
