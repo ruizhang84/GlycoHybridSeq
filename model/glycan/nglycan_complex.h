@@ -24,6 +24,8 @@ public:
         table_.assign(24, 0);
     }
     ~NGlycanComplex(){}
+
+    std::string Type() override { return "Complex"; }
     
     std::vector<std::unique_ptr<Glycan>> Grow(Monosaccharide suger) override;
 

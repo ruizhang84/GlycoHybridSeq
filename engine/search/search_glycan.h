@@ -80,6 +80,8 @@ public:
         const std::vector<int> identified_glycan_table = 
             glycans_map_.find(identified_glycan_id)->second->TableConst();
         const std::vector<int> candidate_glycan_table = glycan->TableConst();
+        if (candidate_glycan_table.size() != identified_glycan_table.size())
+            return false;
         for(int i = 0; i < (int) identified_glycan_table.size(); i++)
         {
             if (candidate_glycan_table[i] < identified_glycan_table[i])

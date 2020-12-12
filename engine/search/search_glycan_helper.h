@@ -59,6 +59,7 @@ public:
             }
         }
     }
+    
     void Max(std::vector<model::spectrum::Peak> peaks)
     {
         PeakMatch best;

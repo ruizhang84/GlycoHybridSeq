@@ -24,6 +24,9 @@ public:
     Glycan() = default;
     virtual ~Glycan(){}
 
+    //type
+    virtual std::string Type() { return ""; }
+
     // Mass
     double Mass() { return mass_; }
     void set_mass(double mass) { mass_ = mass; }

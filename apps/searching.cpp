@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
 
 
     // output analysis results
-    ReportResults(out_path, ConvertComposition(results, builder->GlycanMapsRef()));
+    ReportResults(out_path, ConvertComposition(targets, builder->GlycanMapsRef()));
     // ReportResults(out_path, results);
 
     auto stop = std::chrono::high_resolution_clock::now(); 

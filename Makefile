@@ -32,7 +32,7 @@ glycan_builder_test:
 
 glycan_test:
 	$(CC) $(CPPFLAGS) -o test/glycan_test \
-	 model/glycan/glycan_test.cpp model/glycan/nglycan_complex.cpp $(INCLUDES)
+	 model/glycan/glycan_test.cpp model/glycan/nglycan_complex.cpp model/glycan/nglycan_hybrid.cpp $(INCLUDES)
 
 protein_test:
 	$(CC) $(CPPFLAGS) -o test/protein_test \
