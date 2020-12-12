@@ -124,6 +124,7 @@ protected:
             if (glycan_results.empty()) continue;
 
             auto searched = analyzer.Analyze(spectrum.Scan(), spectrum.Peaks(), peptide_results, glycan_results);
+            searched = analyzer.Filter(searched, builder_->GlycanMapsRef(), spectrum.PrecursorMZ(), spectrum.PrecursorCharge());
             temp_result.insert(temp_result.end(), searched.begin(), searched.end());
         }
         

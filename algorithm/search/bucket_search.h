@@ -7,6 +7,8 @@
 #include "point.h"
 #include "../../model/spectrum/spectrum.h"
 #include "search.h"
+#include <math.h>
+
 
 namespace algorithm {
 namespace search {
@@ -51,9 +53,9 @@ public:
     {
         if (type_ == model::spectrum::ToleranceBy::PPM)
         {
-           return std::abs(expect - observe) / base * 1000000.0 < tolerance_;
+           return fabs(expect - observe) / base * 1000000.0 < tolerance_;
         }
-        return std::abs(expect - observe) < tolerance_;
+        return fabs(expect - observe) < tolerance_;
     }
 
     // in case when compute delta of two value,

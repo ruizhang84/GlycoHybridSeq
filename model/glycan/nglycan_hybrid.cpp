@@ -147,7 +147,7 @@ std::vector<std::unique_ptr<NGlycanHybrid>> NGlycanHybrid::CreateByAddGlcNAcBran
             {
                 auto g = std::make_unique<NGlycanHybrid>();
                 g->set_table(table_);
-                g->set_table(i + 4, table_[i + 4] + 1);
+                g->set_table(i + 6, table_[i + 6] + 1);
                 g->set_composition(composite_);
                 g->AddMonosaccharide(Monosaccharide::GlcNAc);
                 glycans.push_back(std::move(g));
@@ -220,7 +220,7 @@ bool NGlycanHybrid::ValidAddGal()
     
 std::vector<std::unique_ptr<NGlycanHybrid>> NGlycanHybrid::CreateByAddGal(){
     std::vector<std::unique_ptr<NGlycanHybrid>> glycans;
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 2; i++)
     {
         if (i == 0 || table_[i + 8] < table_[i + 7]) // make it order
         {

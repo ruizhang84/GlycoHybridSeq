@@ -13,6 +13,9 @@
 #include <memory>
 #include <algorithm>
 
+#include "../../util/mass/glycan.h"
+#include "../../util/mass/peptide.h"
+#include "../../util/mass/spectrum.h"
 
 
 namespace engine{
@@ -92,6 +95,35 @@ public:
  
         return results;
     }
+
+    std::vector<SearchResult> Filter(
+        const std::vector<SearchResult>& searched, 
+        const std::unordered_map<std::string, std::unique_ptr<model::glycan::Glycan>>& GlycanMaps,
+        double precursor_mz, double precursor_charge)
+    {
+        double diff = INT_MAX;
+        double precursor_mass = util::mass::SpectrumMass::Compute(precursor_mz, precursor_charge);
+        std::vector<SearchResult> results;
+        for(const auto& it : searched)
+        {
+            model::glycan::Glycan* glycan = GlycanMaps.find(it.Glycan())->second.get();
+            double mass = util::mass::PeptideMass::Compute(it.Sequence()) +
+                util::mass::GlycanMass::Compute(glycan->Composition());
+            if (fabs(mass - precursor_mass) < diff)
+            {
+                diff = fabs(mass - precursor_mass);
+                results.clear();
+                results.push_back(it);
+            }
+            else if (fabs(mass - precursor_mass) == diff)
+            {
+                results.push_back(it);
+            }
+        }
+
+        return results;
+    }
+
 
     double ComputePeakScore(const std::vector<model::spectrum::Peak>& peaks, 
         const std::unordered_set<int>& peptides_index, 
