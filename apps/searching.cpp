@@ -18,7 +18,6 @@
 #include "../engine/protein/protein_ptm.h"
 #include "../engine/glycan/glycan_builder.h"
 #include "../engine/search/precursor_match.h"
-#include "../engine/analysis/multi_comparison.h"
 #include "../engine/analysis/fdr_filter.h"
 #include "../engine/analysis/score_elution.h"
 #include "../engine/spectrum/lsh_clustering.h"
