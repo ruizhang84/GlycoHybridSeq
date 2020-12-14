@@ -89,13 +89,13 @@ protected:
         
     bool IsCleavablePosition(const std::string& sequence, int index)
     {
-        char s = std::toupper(sequence[index]);
+        char s = sequence[index];
         switch (enzyme_)
         {
             //cleaves peptides on the C-terminal side of lysine and arginine
             case Proteases::Trypsin:
                 //proline residue is on the carboxyl side of the cleavage site
-                if (index < (int) sequence.length() - 1 && std::toupper(sequence[index + 1]) == 'P')
+                if (index < (int) sequence.length() - 1 && sequence[index + 1] == 'P')
                 {
                     return false;
                 }
@@ -114,7 +114,7 @@ protected:
                 break;
 
             case Proteases::Chymotrypsin:
-                if (index < (int) sequence.length() - 1 && std::toupper(sequence[index + 1]) == 'P')
+                if (index < (int) sequence.length() - 1 && sequence[index + 1] == 'P')
                 {
                     return false;
                 }
@@ -125,7 +125,7 @@ protected:
                 break;
 
             case Proteases::GluC:
-                if (index < (int) sequence.length() - 1 && std::toupper(sequence[index + 1]) == 'P')
+                if (index < (int) sequence.length() - 1 && sequence[index + 1] == 'P')
                 {
                     return false;
                 }
