@@ -49,7 +49,7 @@ static struct argp_option options[] = {
     {"ms1_by",   'k',  "0",  0, "MS Tolereance By Int: PPM (0) or Dalton (1)" },
     {"ms2_by",   'l',  "1",  0, "MS2 Tolereance By Int: PPM (0) or Dalton (1)" },
     {"fdr_rate",   'r',  "0.01",  0, "FDR rate" },
-    {"glycan_type",   'g',  "CHM",  0, "The Searching Glycan Type, Complex (C), Hybrid (H), High Mannose(M)"},
+    {"glycan_type",   'g',  "C",  0, "The Searching Glycan Type, Complex (C), Hybrid (H), High Mannose(M)"},
     { 0 }
 };
 

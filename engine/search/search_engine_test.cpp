@@ -25,7 +25,7 @@ namespace search {
 BOOST_AUTO_TEST_CASE( search_engine_test )
 {
     // read spectrum
-    std::string path = "/home/ruiz/Documents/GlycoCrushSeq/data/MGF2/ZC_20171218_C16_R2.mgf";
+    std::string path = "/home/ruiz/Documents/GlycoCrushSeq/data/ZC_20171218_C9_R1.mgf";
     std::unique_ptr<util::io::SpectrumParser> parser = std::make_unique<util::io::MGFParser>();
     util::io::SpectrumReader spectrum_reader(path, std::move(parser));
 
@@ -82,10 +82,11 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
     std::unique_ptr<engine::glycan::GlycanBuilder> builder =
         std::make_unique<engine::glycan::GlycanBuilder>(hexNAc, hex, Fuc, NeuAc, NeuGc);
     builder->Build();
+    // std::cout << builder->GlycanMapsRef().size() << std::endl;
 
 
     // spectrum matching
-    int special_scan = 11966;
+    int special_scan = 19826;
     double ms1_tol = 10;
     model::spectrum::ToleranceBy ms1_by = model::spectrum::ToleranceBy::PPM;
     std::unique_ptr<algorithm::search::ISearch<std::string>> searcher =
@@ -96,7 +97,7 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
     auto special_spec = spectrum_reader.GetSpectrum(special_scan);
 
     auto results = precursor_runner.Match(special_spec.PrecursorMZ(), special_spec.PrecursorCharge());
-    std::cout << special_spec.Scan() << " : " << std::endl;
+    std::cout << "scan " << special_spec.Scan() << " : " << std::endl;
     // for(auto it : results)
     // {
     //     std::cout << it.first << std::endl;
@@ -135,15 +136,15 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
 
     }
 
-    engine::analysis::SearchAnalyzer analyzer;
-    auto searched = analyzer.Analyze(special_scan, special_spec.Peaks(), peptide_results, glycan_results);
+    // engine::analysis::SearchAnalyzer analyzer;
+    // auto searched = analyzer.Analyze(special_scan, special_spec.Peaks(), peptide_results, glycan_results);
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
     std::cout << duration.count() << std::endl;
-    for(const auto& r : searched)
-    {
-        std::cout << r.Sequence() << " | " << r.Glycan() << " | " << r.Scan() << " " << r.Score() << std::endl;
-    }
+    // for(const auto& r : searched)
+    // {
+    //     std::cout << r.Sequence() << " | " << r.Glycan() << " | " << r.Scan() << " " << r.Score() << std::endl;
+    // }
 
    
 }
