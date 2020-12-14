@@ -26,8 +26,6 @@ public:
         table_.assign(16, 0);
     }
     ~NGlycanHybrid(){}
-
-    GlycanType Type() override { return GlycanType::NHybrid; }
     
     std::vector<std::unique_ptr<Glycan>> Grow(Monosaccharide suger) override;
 
