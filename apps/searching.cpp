@@ -294,7 +294,6 @@ int main(int argc, char *argv[])
             parameter.hex_upper_bound, parameter.fuc_upper_bound, 
                 parameter.neuAc_upper_bound, parameter.neuGc_upper_bound,
                     parameter.complex, parameter.hybrid, parameter.highmannose);
-    builder->Build();
 
     // search
     std::cout << "Start to scan\n"; 
