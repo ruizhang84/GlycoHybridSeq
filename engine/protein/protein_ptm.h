@@ -16,8 +16,8 @@ public:
     {
         for (size_t i = 0; i < sequence.length() - 2; i++)
         {
-            char s = std::toupper(sequence[i]);
-            char nxs = std::toupper(sequence[i + 2]);
+            char s = sequence[i];
+            char nxs = sequence[i + 2];
             if (s == 'N' && (nxs == 'S' || nxs == 'T')) return true;
         }
 
@@ -28,7 +28,7 @@ public:
     {
         for (size_t i = 0; i < sequence.length(); i++)
         {
-            char s = std::toupper(sequence[i]);
+            char s = sequence[i];
             if (s == 'S' || s == 'T') return true;
         }
 
@@ -40,8 +40,8 @@ public:
         std::vector<int>  pos;
         for (size_t i = 0; i < sequence.length() - 2; i++)
         {
-            char s = std::toupper(sequence[i]);
-            char nxs = std::toupper(sequence[i + 2]);
+            char s = sequence[i];
+            char nxs = sequence[i + 2];
             if (s == 'N' && (nxs == 'S' || nxs == 'T')) pos.push_back(i);
         }
 
@@ -53,7 +53,7 @@ public:
         std::vector<int> pos;
         for (size_t i = 0; i < sequence.length(); i++)
         {
-            char s = std::toupper(sequence[i]);
+            char s = sequence[i];
             if (s == 'S' || s == 'T') pos.push_back(i);
         }
 
