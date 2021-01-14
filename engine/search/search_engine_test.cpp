@@ -25,7 +25,7 @@ namespace search {
 BOOST_AUTO_TEST_CASE( search_engine_test )
 {
     // read spectrum
-    std::string path = "/home/ruiz/Documents/GlycoCrushSeq/data/ZC_20171218_C9_R1.mgf";
+    std::string path = "/home/ruiz/Documents/GlycoCrushSeq/data/ZC_20171218_H95_R1.mgf";
     std::unique_ptr<util::io::SpectrumParser> parser = std::make_unique<util::io::MGFParser>();
     util::io::SpectrumReader spectrum_reader(path, std::move(parser));
 
@@ -40,12 +40,12 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
     util::io::FASTAReader fasta_reader("/home/ruiz/Documents/GlycoCrushSeq/data/haptoglobin.fasta");
     std::vector<model::protein::Protein> proteins = fasta_reader.Read();
 
-    for(auto& p: proteins)
-    {
-        std::string seq = p.Sequence();
-        std::reverse(seq.begin(), seq.end());
-        p.set_sequence(seq);
-    }
+    // for(auto& p: proteins)
+    // {
+    //     std::string seq = p.Sequence();
+    //     std::reverse(seq.begin(), seq.end());
+    //     p.set_sequence(seq);
+    // }
 
     engine::protein::Digestion digest;
     digest.SetProtease(engine::protein::Proteases::Trypsin);
@@ -62,18 +62,18 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
         peptides.insert(peptides.end(), seq.begin(), seq.end());
     }
 
-    std::unordered_set<std::string> seen;
-    int count = 0;
-    for(auto it : peptides)
-    {
-        if (seen.find(it) == seen.end())
-        {
-            seen.insert(it);
-            count++;
-        }
+    // std::unordered_set<std::string> seen;
+    // int count = 0;
+    // for(auto it : peptides)
+    // {
+    //     if (seen.find(it) == seen.end())
+    //     {
+    //         seen.insert(it);
+    //         count++;
+    //     }
             
-    }
-    std::cout << count << std::endl;
+    // }
+    // std::cout << count << std::endl;
     // BOOST_CHECK(std::find(peptides.begin(), peptides.end(), "VVLHPNYSQVD") != peptides.end());
     // BOOST_CHECK(std::find(peptides.begin(), peptides.end(), "KDNLTYVGDGETR") != peptides.end());
 
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
 
 
     // spectrum matching
-    int special_scan = 19826;
+    int special_scan = 8019;
     double ms1_tol = 10;
     model::spectrum::ToleranceBy ms1_by = model::spectrum::ToleranceBy::PPM;
     std::unique_ptr<algorithm::search::ISearch<std::string>> searcher =
@@ -98,14 +98,14 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
 
     auto results = precursor_runner.Match(special_spec.PrecursorMZ(), special_spec.PrecursorCharge());
     std::cout << "scan " << special_spec.Scan() << " : " << std::endl;
-    // for(auto it : results)
-    // {
-    //     std::cout << it.first << std::endl;
-    //     for(auto g: it.second)
-    //     {
-    //         std::cout << g->Name() << std::endl;
-    //     }
-    // }
+    for(auto it : results)
+    {
+        std::cout << it.first << std::endl;
+        for(auto g: it.second)
+        {
+            std::cout << g->Name() << std::endl;
+        }
+    }
 
     // search peptide
     auto start = std::chrono::high_resolution_clock::now();
