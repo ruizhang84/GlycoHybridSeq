@@ -36,6 +36,9 @@ struct SearchParameter
     bool complex = true;
     bool hybrid = false;
     bool highmannose = false;
+    // dynamic modification
+    bool oxidation = false;
+    bool deamidation = false;
 
 };
 

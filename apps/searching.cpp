@@ -49,6 +49,7 @@ static struct argp_option options[] = {
     {"ms2_by",   'l',  "1",  0, "MS2 Tolereance By Int: PPM (0) or Dalton (1)" },
     {"fdr_rate",   'r',  "0.01",  0, "FDR rate" },
     {"glycan_type",   'g',  "C",  0, "The Searching Glycan Type, Complex (C), Hybrid (H), High Mannose(M)"},
+    {"modification", 'c', "OD", 0, "The dynamic modification, including Oxidation(O) @ M and Deamidated(D) @ N, Q"},
     { 0 }
 };
 
@@ -57,7 +58,8 @@ static std::string default_fasta_path = "haptoglobin.fasta";
 static std::string default_decoy_path = "titin.fasta";
 static std::string default_out_path = "result.csv";
 static std::string default_digestion = "TG";
-static std::string default_glycan_type = "CHM";
+static std::string default_modification = "OD";
+static std::string default_glycan_type = "C";
 
 struct arguments
 {
@@ -70,6 +72,7 @@ struct arguments
     //digestion
     int miss_cleavage = 2;
     char * digestion = const_cast<char*> (default_digestion.c_str());
+    char * modification = const_cast<char*> (default_modification.c_str());
     // upper bound of glycan seaerch
     int n_thread = 6;
     int hexNAc_upper_bound = 12;
@@ -97,6 +100,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
 
     switch (key)
     {
+    case 'c':
+        arguments->modification = arg;
+        break;
+
     case 'd':
         arguments->decoy_set = true;
         arguments->decoy_path = arg;
@@ -221,6 +228,24 @@ SearchParameter GetParameter(const struct arguments& arguments)
             break;
         }
     }
+    std::string modification(arguments.modification);
+    for(const char& c : protease)
+    {
+        switch (c)
+        {
+        case 'O': case 'o':
+            parameter.oxidation = true;
+            break;
+
+        case 'D': case 'd':
+            parameter.deamidation = true;
+            break;
+        
+        default:
+            break;
+        }
+    }
+
     std::string glycan_type(arguments.glycan_type);
     for(const char& c : glycan_type)
     {

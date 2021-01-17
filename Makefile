@@ -66,6 +66,10 @@ lsh_clustering_test:
 	$(CC) $(CPPFLAGS) -o test/lsh_clustering_test \
 	engine/spectrum/lsh_clustering_test.cpp $(INCLUDES)
 
+modification_test:
+	$(CC) $(CPPFLAGS) -o test/modification_test \
+	engine/protein/modification_test.cpp $(INCLUDES)
+
 # test
 test: ${TEST_CASES} ${TEST_CASES_2} ${TEST_CASES_3}
 

@@ -92,6 +92,28 @@ public:
             if (candidate_glycan_table[i] < identified_glycan_table[i])
                 return false;
         }
+
+        // check terminal 
+        if ((int) identified_glycan_table.size() == 24)
+        {
+            for(int i = 0; i < 4; i++)
+            {
+                if ( (identified_glycan_table[12 + i] > 0 || identified_glycan_table[16 + i] > 0
+                        ) && identified_glycan_table[4 + i] != candidate_glycan_table[4 + i])
+                        return false;
+            }
+            
+        }
+        else if ((int) identified_glycan_table.size() == 16)
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                if ((identified_glycan_table[10 + i] > 0 || identified_glycan_table[12 + i] > 0
+                        ) && identified_glycan_table[6 + i] != candidate_glycan_table[6 + i])
+                    return false;
+            }
+
+        }
         return true;
     }
 

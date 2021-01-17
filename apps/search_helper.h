@@ -11,7 +11,7 @@
 #include "../engine/protein/protein_digest.h"
 #include "../engine/protein/protein_ptm.h"
 #include "../engine/analysis/search_analyzer.h"
-
+#include "../engine/protein/modification.h"
 
 // generate peptides by digestion
 std::vector<engine::analysis::SearchResult>ConvertComposition(
@@ -79,6 +79,10 @@ std::unordered_set<std::string> PeptidesDigestion
         }
         peptides.insert(double_seqs.begin(), double_seqs.end());
     }   
+    // dynamic modification
+    peptides = engine::protein::Modifier::DynamicModification(
+        peptides, engine::protein::ProteinPTM::ContainsNGlycanSite,
+        parameter.oxidation, parameter.deamidation);
 
     return peptides;
 }
@@ -94,7 +98,7 @@ void ReportResults(const std::string& out_path,
     for(auto it : results)
     {
         outfile << it.Scan() << ",";
-        outfile << it.Sequence() << ",";
+        outfile << engine::protein::Modifier::Interpret(it.Sequence()) << ",";
         outfile << it.Glycan() << ",";
         outfile << it.ModifySite() << ",";
         outfile << it.Score() << "\n";
