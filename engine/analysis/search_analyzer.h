@@ -48,7 +48,7 @@ public:
             peptides_map[peptide].push_back(it.first);
         }
         for (const auto& it : glycan_results)
-        {
+        {    
             std::string peptide = it.first.substr(0, it.first.find("|"));
             if (glycans_map.find(peptide) == glycans_map.end())
             {
@@ -62,16 +62,24 @@ public:
         for(const auto& it : peptides_map)
         {
             std::string peptide = it.first;
+
+            if (glycans_map.find(peptide) == glycans_map.end())
+                continue;
+
             for(const auto& p : it.second)
-            {
-                
+            {              
+
                 for(const auto& g : glycans_map[peptide])
                 {
+
+                    std::cout << g << std::endl;
+
                     // get index
                     std::unordered_set<int> peptides_index = peptide_results.find(p)->second;
                     std::unordered_set<int> glycans_index = glycan_results.find(g)->second;
                     // compute score
                     double score = ComputePeakScore(peaks, peptides_index, glycans_index);
+                    
                     // create results if higher score
                     if (score > best_score)
                     {

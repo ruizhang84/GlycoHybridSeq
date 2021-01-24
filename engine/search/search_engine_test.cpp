@@ -16,6 +16,7 @@
 #include "search_helper.h"
 #include "precursor_match.h"
 #include "../analysis/search_result.h"
+#include "../analysis/search_analyzer.h"
 
 #include <chrono>
 
@@ -25,7 +26,7 @@ namespace search {
 BOOST_AUTO_TEST_CASE( search_engine_test )
 {
     // read spectrum
-    std::string path = "/home/ruiz/Documents/GlycoCrushSeq/data/ZC_20171218_H95_R1.mgf";
+    std::string path = "/home/ruiz/Documents/GlycoHybridSeq/data/MGF/ZC_20171218_C16_R1.mgf";
     std::unique_ptr<util::io::SpectrumParser> parser = std::make_unique<util::io::MGFParser>();
     util::io::SpectrumReader spectrum_reader(path, std::move(parser));
 
@@ -37,7 +38,7 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
     model::spectrum::Spectrum spec = spectrum_reader.GetSpectrum(start_scan);
 
     // read fasta and build peptides
-    util::io::FASTAReader fasta_reader("/home/ruiz/Documents/GlycoCrushSeq/data/haptoglobin.fasta");
+    util::io::FASTAReader fasta_reader("/home/ruiz/Documents/GlycoHybridSeq/data/haptoglobin.fasta");
     std::vector<model::protein::Protein> proteins = fasta_reader.Read();
 
     // for(auto& p: proteins)
@@ -86,7 +87,7 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
 
 
     // spectrum matching
-    int special_scan = 8019;
+    int special_scan = 12122;
     double ms1_tol = 10;
     model::spectrum::ToleranceBy ms1_by = model::spectrum::ToleranceBy::PPM;
     std::unique_ptr<algorithm::search::ISearch<std::string>> searcher =
@@ -122,8 +123,8 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
         std::make_unique<algorithm::search::BucketSearch<int>>(ms2_by, ms2_tol);
     GlycanSearch spectrum_searcher(std::move(extra_searcher), builder->GlycanMapsRef());
     auto glycan_results = spectrum_searcher.Search(special_spec.Peaks(), special_spec.PrecursorCharge(), results);
-
     
+    engine::analysis::SearchAnalyzer analyzer;
 
     for(const auto& it : glycan_results)
     {
@@ -135,6 +136,13 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
         std::cout << it.first << " :"  << it.second.size() << " " << SearchHelper::ComputePeakScore(special_spec.Peaks(), it.second) << std::endl;
 
     }
+
+    auto ans = analyzer.Analyze(special_scan, special_spec.Peaks(), peptide_results, glycan_results);
+    for(const auto& it : ans)
+    {
+        std::cout << it.Glycan() << " :"  << it.Sequence() << " " << it.Score() << std::endl;
+    }
+
 
     // engine::analysis::SearchAnalyzer analyzer;
     // auto searched = analyzer.Analyze(special_scan, special_spec.Peaks(), peptide_results, glycan_results);

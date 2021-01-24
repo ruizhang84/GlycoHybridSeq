@@ -269,7 +269,7 @@ protected:
     const std::string kY1 = "1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ";
     const std::string kY1_hybrid = "1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ";
     const std::string kY1_mannose = "1 0 0 0 0 0 ";
-    const int kMissing = 4;
+    const int kMissing = 5;
     std::unordered_map<std::string, double> peptide_mass_;
 };
 

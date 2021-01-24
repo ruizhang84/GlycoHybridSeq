@@ -229,7 +229,7 @@ SearchParameter GetParameter(const struct arguments& arguments)
         }
     }
     std::string modification(arguments.modification);
-    for(const char& c : protease)
+    for(const char& c : modification)
     {
         switch (c)
         {
