@@ -71,9 +71,6 @@ public:
 
                 for(const auto& g : glycans_map[peptide])
                 {
-
-                    std::cout << g << std::endl;
-
                     // get index
                     std::unordered_set<int> peptides_index = peptide_results.find(p)->second;
                     std::unordered_set<int> glycans_index = glycan_results.find(g)->second;
