@@ -53,7 +53,7 @@ std::vector<std::unique_ptr<Glycan>> NGlycanHybrid::Grow(Monosaccharide suger){
             std::unique_ptr<NGlycanHybrid> ptr = CreateByAddFucCore();
             glycans.push_back(std::move(ptr));
         }
-        else if (ValidAddFucTerminal()){
+        if (ValidAddFucTerminal()){
             std::vector<std::unique_ptr<NGlycanHybrid>> gs = CreateByAddFucTerminal();
             for (auto& ptr : gs){
                 glycans.push_back(std::move(ptr));
@@ -240,7 +240,8 @@ std::vector<std::unique_ptr<NGlycanHybrid>> NGlycanHybrid::CreateByAddGal(){
 
 bool NGlycanHybrid::ValidAddFucCore()
 {
-    return (table_[0] == 1 && table_[1] == 0 && table_[2] == 0);  //core
+    return (table_[2] == 0); 
+    // return (table_[0] == 1 && table_[1] == 0 && table_[2] == 0);  //core
 }
 
 std::unique_ptr<NGlycanHybrid> NGlycanHybrid::CreateByAddFucCore()

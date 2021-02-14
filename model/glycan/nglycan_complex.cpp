@@ -203,7 +203,8 @@ std::vector<std::unique_ptr<NGlycanComplex>> NGlycanComplex::CreateByAddGal(){
 
 bool NGlycanComplex::ValidAddFucCore()
 {
-    return (table_[0] == 1 && table_[1] == 0 && table_[2] == 0);  //core
+    return (table_[2] == 0); 
+    // return (table_[0] == 1 && table_[1] == 0 && table_[2] == 0);  //core
 }
 
 std::unique_ptr<NGlycanComplex> NGlycanComplex::CreateByAddFucCore()
