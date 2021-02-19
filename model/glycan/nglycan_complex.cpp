@@ -47,7 +47,7 @@ std::vector<std::unique_ptr<Glycan>> NGlycanComplex::Grow(Monosaccharide suger){
             std::unique_ptr<NGlycanComplex> ptr = CreateByAddFucCore();
             glycans.push_back(std::move(ptr));
         }
-        else if (ValidAddFucTerminal()){
+        if (ValidAddFucTerminal()){
             std::vector<std::unique_ptr<NGlycanComplex>> gs = CreateByAddFucTerminal();
             for (auto& ptr : gs){
                 glycans.push_back(std::move(ptr));

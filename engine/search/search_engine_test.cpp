@@ -26,7 +26,7 @@ namespace search {
 BOOST_AUTO_TEST_CASE( search_engine_test )
 {
     // read spectrum
-    std::string path = "/home/ruiz/Documents/GlycoHybridSeq/data/MGF/ZC_20171218_C16_R1.mgf";
+    std::string path = "/home/ruiz/Documents/GlycoHybridSeq/data/MGF/ZC_20171218_C22_R2.mgf";
     std::unique_ptr<util::io::SpectrumParser> parser = std::make_unique<util::io::MGFParser>();
     util::io::SpectrumReader spectrum_reader(path, std::move(parser));
 
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
             
     // }
     // std::cout << count << std::endl;
-    // BOOST_CHECK(std::find(peptides.begin(), peptides.end(), "VVLHPNYSQVD") != peptides.end());
+    BOOST_CHECK(std::find(peptides.begin(), peptides.end(), "NLFLNHSENATAK") != peptides.end());
     // BOOST_CHECK(std::find(peptides.begin(), peptides.end(), "KDNLTYVGDGETR") != peptides.end());
 
     // // build glycans
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
 
 
     // spectrum matching
-    int special_scan = 12122;
+    int special_scan = 6697;
     double ms1_tol = 10;
     model::spectrum::ToleranceBy ms1_by = model::spectrum::ToleranceBy::PPM;
     std::unique_ptr<algorithm::search::ISearch<std::string>> searcher =
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE( search_engine_test )
     auto special_spec = spectrum_reader.GetSpectrum(special_scan);
 
     auto results = precursor_runner.Match(special_spec.PrecursorMZ(), special_spec.PrecursorCharge());
-    std::cout << "scan " << special_spec.Scan() << " : " << std::endl;
+    std::cout << "scan " << special_spec.Scan( )<< " : " << special_spec.PrecursorMZ() << " "<< special_spec.PrecursorCharge() << std::endl;
     for(auto it : results)
     {
         std::cout << it.first << std::endl;
